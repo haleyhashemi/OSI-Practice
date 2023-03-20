@@ -1,0 +1,1 @@
+Go directly to the lagoon and execute the command called HELP.

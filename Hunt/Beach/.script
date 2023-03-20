@@ -1,0 +1,6 @@
+#! /usr/bin/tclsh
+foreach n {} {
+	set f [open "$a\.txt" w]
+	puts $f [format %.0f [expr rand()*1000]]
+	close $f
+}

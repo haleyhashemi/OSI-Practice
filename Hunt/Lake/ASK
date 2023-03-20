@@ -1,0 +1,18 @@
+#! /usr/bin/tclsh
+puts "Hi There!"
+puts "How long did that video last? Pick one of the following by entering"
+puts "a letter and pressing return at the prompt."
+puts "A: One Second"
+puts "B: Ten Seconds"
+puts "C: One Hundred Seconds."
+puts "D: None of the Above."
+puts "E: What video?"
+puts -nonewline stdout "Answer: "
+flush stdout
+gets stdin answer
+if {($answer == "B") || ($answer == "b")} {
+  puts "GOLD COIN!!! Congratulations, you have completed the quest."
+  exec /usr/bin/wish ../Ocean/gc.tcl
+} {
+  puts "Go to the Ocean and jump in." 
+} 

@@ -1,0 +1,36 @@
+#! /usr/bin/tclsh
+puts "Hunt Manager Daemon Started"
+while {1} {
+  if {[file exists Lagoon/sum.txt]} {
+    set f [open Lagoon/sum.txt r]
+    set contents [read $f]
+    close $f
+    if {$contents == 123} {
+      file delete Lagoon/sum.txt
+      catch {[file delete Mountain/newclue.txt]}
+      exec /usr/bin/wish Ocean/gc.tcl
+      exit
+    }
+  } elseif {[file exists Ocean/roman.txt]} {
+    set f [open Ocean/roman.txt r]
+    set contents [string trim [read $f]]
+    close $f
+    if {$contents == "LXXXII"} {
+      file delete Ocean/roman.txt
+      set f [open Mountain/newclue.txt w]
+      puts $f "Well done getting the LXXXII correct. Your final number is"
+      puts $f "forty-one. Add this to your existing sum and make a file"
+      puts $f "called sum.txt in the Lagoon that contains this number."
+      close $f
+    }
+  } elseif {[file exists Lagoon/sum1000.txt]} {
+    set f [open Lagoon/sum1000.txt r]
+    set contents [string trim [read $f]]
+    if {$contents == 500500} {
+      file delete Lagoon/sum1000.txt
+      exec /usr/bin/wish Ocean/gc.tcl
+      exit
+    }
+  }
+  after 1000
+}

@@ -1,0 +1,18 @@
+#! /usr/bin/tclsh
+puts "This is the sum-checker. Enter a number at the prompt."
+puts -nonewline stdout "$ "
+flush stdout
+gets stdin number
+if {$number == 21} {
+  puts "If you are on Hunt Two, this is the correct sum when you get to"
+  puts "step three, which is this step. So I guess you are doing okay."
+  puts "Not lost yet. Now, your number for this step is sixty-one. Add"
+  puts "that to the number you just entered for the sum so far. How is"
+  puts "that sum written in Roman Numerals? You may have to do some"
+  puts "research to figure that out. When you do figure it out, go to"
+  puts "the Ocean and create a file named roman.txt containing the"
+  puts "Roman numerals. After that, look for a file called newclue.txt"
+  puts "for your next clue."
+} else {
+  puts "That's not a valid sum for sum-checking in any treasure hunt."
+}

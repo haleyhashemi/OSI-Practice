@@ -1,0 +1,12 @@
+echo "STILL GOLD COINS #1"
+echo "MOVING GOLD COINS #3"
+echo "8/7/19 HUNT #1 FINISHED"
+echo "2/17/20 HUNT #1 FINISHED"
+echo "8/8/19 HUNT #2 FINISHED"
+echo "2/17/20 HUNT #2 FINISHED"
+echo "8/19/19 HUNT #3 FINISHED"
+exec /usr/bin/wish ../Ocean/gc.tcl &
+exec /usr/bin/wish ../Ocean/gc.tcl &
+exec /usr/bin/wish ../Ocean/gc.tcl &
+exec /usr/bin/wish ../Ocean/gc.tcl &
+exec /usr/bin/wish ../Ocean/gc.tcl &

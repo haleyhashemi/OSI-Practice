@@ -1,0 +1,11 @@
+echo "There once was a boy called John"
+echo "Who sat on the toilet so long"
+echo "That his legs stiffened up"
+echo "And he could not stand up"
+echo "That unfortunate boy called John"
+echo ""
+echo ""
+echo "The longest word in this poem"
+echo "Is a command you can run"
+echo "In the city"
+

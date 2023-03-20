@@ -1,0 +1,2 @@
+echo "Make a file called sum1000.txt in the Lagoon that contains"
+echo "the sum of all the numbers from one to one thousand."
