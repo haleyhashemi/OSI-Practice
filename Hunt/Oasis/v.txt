@@ -1,7 +1,7 @@
 This is the second clue of Hunt Three. Well done so far. The only letter that
-was not in the first clue was the letter V. And so you have found your way 
-here. Consider the nubmer 380. Divide it by ten. Subtract two. What number 
-do you get? Call this number X. For X it is. And it shall be called X. Now,
-what number, call it Y, is such that, when you multiply Y by itself, you get
-the number X? That is: X = Y * Y. Find this number Y and look for a file
-named after this special number. Execute the file. 
+was not in the first clue was the letter V. And so you have found your way here.
+Consider the nubmer 380. Divide it by ten. Subtract two. What number do you get?
+Call this number X. For X it is. And it shall be called X. Now, what number,
+call it Y, is such that, when you multiply Y by itself, you get the number X?
+Find this number Y and look for a file named after this special number. Execute
+the file. 

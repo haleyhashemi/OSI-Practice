@@ -1,5 +1,0 @@
-#! /bin/bash
-raspivid -t 10000
-echo "HEY THERE. I bet you enjoyed looking at yourself."
-echo "Now go to the Lake and answer the question you are asked when"
-echo "you run the command ASK."

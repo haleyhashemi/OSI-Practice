@@ -1,4 +1,5 @@
 #! /bin/bash
 echo "Go to the directory named after a hot, rainy place with many plants"
 echo "and trees. Print the contents of a file you find there, named after"
-echo "a creature with ten legs."
+echo "a creature with ten legs that features in the John Carter of Mars"
+echo "novels by Edgar Rice Burrows."

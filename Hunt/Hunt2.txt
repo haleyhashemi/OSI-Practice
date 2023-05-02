@@ -1,0 +1,7 @@
+INSTRUCTIONS FOR HUNT TWO
+-------------------------
+
+At each step of the hunt, you will receive a number. Add all these numbers
+together. When you reach the end of the hunt, you will use the sum to get your
+coin. Your first task is to find a file named after the cube of the number three
+and print its contents.

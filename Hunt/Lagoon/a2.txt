@@ -1,0 +1,4 @@
+This paragraph has a number of words in it, and is similar to another text file
+nearby, but not exactly the same, so that it would be a fatal error to assume that
+they were the same. Indeed, if you were to make such an assumption you would
+miss the entire clue that is contained herein.

@@ -1,5 +1,5 @@
-Yes, the cube of the number three is twenty-seven. But the cube of
-the number two is only eight. Eight is your first treasure hunt
-number. Now, if you take the word "eight" and move four place to
-the right in the alphabet for each letter, you get a silly collection
-of letters. Look for that collection.
+Yes, the cube of the number three is twenty-seven. But the cube of the number
+two is only eight. Eight is your first treasure hunt number. Now, if you take
+the word "eight" and move four place to the right in the alphabet for each
+letter, you get a silly collection of letters. Look for that collection as an
+executable file and execute it.

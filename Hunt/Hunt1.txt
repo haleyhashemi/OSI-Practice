@@ -1,0 +1,6 @@
+TREASURE HUNT NUMBER ONE INSTRUCTIONS
+-------------------------------------
+
+Compare files Lagoon/a1.txt and Lagoon/a2.txt. The difference between them will give
+you the name of a file somewhere in the Hunt World that you can execute to give you
+the next clue.

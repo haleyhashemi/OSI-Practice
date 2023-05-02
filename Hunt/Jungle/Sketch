@@ -1,0 +1,27 @@
+#! /usr/bin/tclsh
+puts "Here is a portrait of the Hunt Manager."
+puts "         _____"
+after 100
+puts "        |     |"
+after 100
+puts "        |     |"
+after 100
+puts "      -----------       "
+after 100
+puts "      / --  -- \\   "
+after 100
+puts "    \[|  0 /\\ 0  |\]  "
+after 100
+puts "      | \\____/ |  "
+after 100
+puts "       \\______/   "
+after 100
+puts "       ||||||||    "
+after 100
+puts "        ||||||     "
+after 100
+puts "          ||   "
+after 100
+puts ""
+puts "Go to the Lake and answer the question you are asked when"
+puts "you run the command ASK."

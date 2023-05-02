@@ -1,17 +1,19 @@
 #! /usr/bin/tclsh
 puts "Hi There!"
-puts "How long did that video last? Pick one of the following by entering"
-puts "a letter and pressing return at the prompt."
-puts "A: One Second"
-puts "B: Ten Seconds"
-puts "C: One Hundred Seconds."
-puts "D: None of the Above."
-puts "E: What video?"
+puts "Which of the following statements is definitely NOT true of the Hunt Manager?"
+puts "A: He has a beard."
+puts "B: He shaves his eyebrows."
+puts "C: He is deaf."
+puts "D: He likes wearing a hat."
+puts "E: His eyes are like zeros."
 puts -nonewline stdout "Answer: "
 flush stdout
 gets stdin answer
 if {($answer == "B") || ($answer == "b")} {
-  puts "GOLD COIN!!! Congratulations, you have completed the quest."
+  puts "Congratulations! You have completed Hunt One."
+  puts "Your gold coin should appear in a moment. This"
+  puts "command will quit when you collect the coin by"
+  puts "closing the coin window."
   exec /usr/bin/wish ../Ocean/gc.tcl
 } {
   puts "Go to the Ocean and jump in." 

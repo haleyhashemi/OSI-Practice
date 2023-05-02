@@ -1,18 +1,62 @@
 #! /usr/bin/tclsh
+
+# First we are going to get some counts with which we can compare the hunter's
+# entries. We don't want to hard-code these values into the sum-checker because
+# this would allow an intrepid hunter to look at this script and figure out 
+# what the correct answers are without doing any work.
+
+# For Hunt One we calculate the sum of the first two numbers.
+set h1s [expr round((pow(4,3) - max(12,9,22,3,7))*0.5)]
+
+# For Hunt Four, we count the number of times the word Sallina occurs in
+# the story.
+set f [open ../Ocean/Story.txt r]
+set contents [read $f]
+close $f
+set contents [split $contents "., "]
+set scount 0
+foreach word $contents {if {$word == "Sallina"} {incr scount}}
+
+# For Hunt Four, we count the number of files ending in .txt, including
+# hidden files.
+set tcount [string trim [exec find .. -name "*.txt" | wc -w]]
+
+set message21 {
+If you are on Hunt Two, this is the correct sum when you get to step three,
+which is this step. So I guess you are doing okay. Not lost yet. Now, your
+number for this step is sixty-one. Add that to the number you just entered for
+the sum. Go to the Ocean and create a file named roman.txt containing the Roman
+numerals for your new sum. If you enter the correct numerals in this file, the
+Hunt Manager will create a file Mountain/newclue.txt containing your next clue and
+immediately delete your roman.txt. But if you enter the wrong numerals, the Hunt
+Manager will do nothing, and your roman.txt file will remain on disk, as a
+sign of your failure. Or a sign that the Hunt Manager has quit running. Better
+check that it is still running with the "ps" command.
+}
 puts "This is the sum-checker. Enter a number at the prompt."
 puts -nonewline stdout "$ "
 flush stdout
 gets stdin number
-if {$number == 21} {
-  puts "If you are on Hunt Two, this is the correct sum when you get to"
-  puts "step three, which is this step. So I guess you are doing okay."
-  puts "Not lost yet. Now, your number for this step is sixty-one. Add"
-  puts "that to the number you just entered for the sum so far. How is"
-  puts "that sum written in Roman Numerals? You may have to do some"
-  puts "research to figure that out. When you do figure it out, go to"
-  puts "the Ocean and create a file named roman.txt containing the"
-  puts "Roman numerals. After that, look for a file called newclue.txt"
-  puts "for your next clue."
+
+if {$number == $h1s} {
+	puts $message21
+} elseif {$number == $scount} {
+	puts "Well done, that was some very fine counting you did. Now tell me:"
+	puts "how many files with extention \".txt\" are there in the Hunt World?"
+	puts "Run sum-checker again and see if you have it right."
+} elseif {$number == $tcount} {
+	puts "Congratulations, you have completed Hunt Four. The sum-checker will"
+	puts "wait until you collect your coin."
+	exec /usr/bin/wish ../Ocean/gc.tcl
+} elseif {$number == $tcount - 1} {
+	puts "That's not right. Did you think you could count the number of"
+	puts "text files just by using the list command in each directory?"
+	puts "Or by counting them in your graphical directory windows? No,"
+	puts "you can't do that, because you miss the the hidden files. You"
+	puts "must use the \"find\" command, and maybe \"wc\" too."
 } else {
-  puts "That's not a valid sum for sum-checking in any treasure hunt."
+  	puts "That's not a valid sum for sum-checking in any treasure hunt."
 }
+
+
+			

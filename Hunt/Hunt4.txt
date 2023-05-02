@@ -1,0 +1,11 @@
+INSTRUCTIONS FOR THE FOURTH HUNT
+--------------------------------
+
+The fourth hunt is harder than those that came before. Only a programmer can
+make it through this hunt, for it is a programmer's hunt. 
+
+Your first task is to count the number of times the lower-case letter "o" occurs
+in the file Ocean/TDG.html and divide it by the number of times the upper-case
+letter "E" occurs in the same file. Truncate to the nearest integer. Save this
+number to a file called Ocean/o_div_E.txt. The Hunt Manager will print the next
+clue right to your terminal.
