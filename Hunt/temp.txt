@@ -54,7 +54,7 @@ Assuming you have tclsh and wish installed in the correct location, start the
 Hunt Manager process by executing the following command in the main Hunt
 directory.
 
-./manager.sh &
+./manager &
 
 The Hunt Manager will run in the background as you hunt for clues, and when you
 solve a puzzle, the manager will reward you by displaying a gold coin on your
