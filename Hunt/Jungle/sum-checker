@@ -13,9 +13,9 @@ set h1s [expr round((pow(4,3) - max(12,9,22,3,7))*0.5)]
 set f [open ../Ocean/Story.txt r]
 set contents [read $f]
 close $f
-set contents [split $contents "., "]
+set contents [split $contents "., \""]
 set scount 0
-foreach word $contents {if {$word == "Sallina"} {incr scount}}
+foreach word $contents {if {[string match "*Sallina*" $word]} {incr scount}}
 
 # For Hunt Four, we count the number of files ending in .txt, including
 # hidden files.
