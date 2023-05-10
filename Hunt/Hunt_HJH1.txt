@@ -1,1 +1,16 @@
-Hello, Q. Welcome to your TS puzzle..it will simply be a series of clues for you to solve based on your taylor swift knowledge. It may get tough...keep the faith! Let's start by going back in time...I assume you know the year Taylor Swift was born in?
+Hello. Welcome! 
+The treasure hunt requires that the tclsh and wish utilities be installed. At
+your terminal prompt type the following commands. You should get the same 
+answers printed below each command. If not, consult with the Hunt Author.
+
+% which tclsh
+/usr/bin/tclsh
+% which wish
+/usr/bin/wish
+
+Assuming you have tclsh and wish installed in the correct location, start the
+Hunt Manager process by executing the following command in the main Hunt
+directory.
+./m &
+
+This will run in the background. Your first question will pop up once it begins running.
