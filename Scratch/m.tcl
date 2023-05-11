@@ -21,9 +21,10 @@
 # and subsequently the contents of the variable called "box", is equal to the term
 # "Wonderland"-- The message "nice" will be printed to the terminal. 
 
-#Notes from 05_10_22:  
+#Notes from 05_10_22:  		
+set LIST [glob -nocomplain *]
 
-
+puts good
 set runtime 10000
 set start [clock seconds]
 set finish [expr $start + $runtime]
