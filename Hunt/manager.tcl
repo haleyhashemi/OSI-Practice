@@ -106,25 +106,7 @@ while {[clock seconds] < $finish} {
 			puts "story. Run sum-checker in the Jungle and enter your value."
 		}
 	}
-
-	set fn "Betty.txt"
-	if {[file exists $fn]} {
-		after 100
-		set o [open $fn r]
-		set contents [string trim [read $o]]
-		close $o
-		if {[string match -nocase "wanting was enough for me it was enough" $contents]} {
-			puts "Correct. Now, please go to the directory of the album that"
-			puts "was released in 2019. Read the text named after not 'her',"
-			puts "'him', 'them', or 'you', but '__!'"
-			catch {file delete $fn}
-		} 
-	}
-
-	
 }
-
-
 
 # We are about to exit. It could be that there is no terminal to write to any more,
 # which will lead to the loss of the announcement below.
