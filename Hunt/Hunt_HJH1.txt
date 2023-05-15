@@ -13,4 +13,4 @@ Hunt Manager process by executing the following command in the main Hunt
 directory.
 ./m &
 
-This will run in the background. Your first question will pop up once it begins running.
+This will run in the background. Your first clue is to go the album, named after the year Taylor Swift was born. Read the text file named "Clue1".

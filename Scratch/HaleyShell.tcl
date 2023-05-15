@@ -66,25 +66,3 @@ while {1} {
 }
 puts "Bye!"
 
-elseif {$ans == "Q1"} {
-	puts "What is the name of the TS Cardigan Haley owns? Enter the letter associated."
-	set clue1 "{A:Folklore Cardigan} {B:Cardigan Cardigan} {C:Evermore Cardigan}"
-	foreach x $clue1 {
-		puts $x} 
-	while {[gets stdin] != "B"} {
-		puts "No! Again!"
-	} puts "Yes!"
-
-
-
-	}
-}
-
- elseif {[lindex $ans 0] == "IFPRIME"}
-  set n [lindex $ans 1] 
-  for {set i 3} {$i < $n} {incr i} {
-  	if { $n % $i == 0} {
-  		puts "Not a prime number"
-  	} else {
-  		puts "This is a prime number"}
-  }
