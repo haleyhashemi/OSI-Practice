@@ -3,7 +3,7 @@
 while {1} {
 	after 1000
 
-	set fn "Betty.txt"
+	set fn "1989/Betty.txt"
 	if {[file exists $fn]} {
 		after 100
 		set o [open $fn r]

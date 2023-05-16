@@ -2,6 +2,8 @@
 
 #EXIT cmd
 
+
+
 while {1} { 
 	puts -nonewline "HHSH> "
 	flush stdout
@@ -36,33 +38,42 @@ while {1} {
 		set help " Here! Hi {1:Go to README file} {2:Ask Haley} {3:Listen to Bejeweled by TS}"
 		foreach h $help {
 			puts $h}
-	} elseif {$ans == "FOLK"} {
-		set folk "Cardigan August Betty Hoax Mirrorball"
-		set rank "1 2 3 4"
-		foreach x [list $folk $rank] {
-		puts "$x"}
-	} elseif {$ans == "ALBUMS"} {
-		foreach {key value} {Folklore 1 Evermore 2 1989 3 Reputation 4 Lover 5} {
-		puts "$key: $value"} 
-	} elseif {$ans == "LYRICS"} {
-		set song "Hoax Cardigan RWYLM WCS"
-		set rank "1 2 3 4 5"
-		foreach val1 $song val2 $rank {
-		puts "$val1: $val2"}
-	} elseif {$ans == "MIDNIGHTS"} {
-		set rank "{1-Karma} {2-Bejeweled} {3-Midnight Rain} {4-You're on your own kid} {5-Maroon}"
-		foreach b $rank {
-			puts "$b"} 
 	} elseif {[lindex $ans 0] == "GOTO"} {
 		set dir [lindex $ans 1]
 		if {![file exists $dir]} {
 			puts "ERROR: Directory $dir does not exist."
-		} else { 
+		} else {
 			puts "Moving to $dir"
 			cd $dir}
+		}  elseif {[lindex $ans 0] == "DIVISIBLE"} {
+			set N1 [lindex $ans 1]
+			set N2 [lindex $ans 2]
+			if {$N1 % $N2 == 0} {
+			set div [expr $N1 / $N2]
+			puts "$N1 divided by $N2 is an integer, the value is $div"
+		} else {
+			puts "$N1 is not divisible by $N2"
+			}
+	}	elseif {[lindex $ans 0] == "PERCENT"} {
+			set N1 [lindex $ans 1]
+			set N2 [lindex $ans 2]
+			set div [expr {$N1 / double ($N2)}]
+			set percent [expr $div * 100]
+			puts "$percent"	
+
+	} elseif {[lindex $ans 0] == "CHANGE"} {
+			set N1 [lindex $ans 1]
+			set N2 [lindex $ans 2]
+			set diff [expr $N2 - $N1]
+			set change [expr {$diff / double ($N1)} * 100]
+			if {$change > 0} {
+				puts " There is a $change % increase"
+				} else {
+				puts "There is a $change % decrease"
+				}
 	} else {
-		puts "$ans not recognizež."
-	}
+			puts "$ans not recognized."
+	} 
 }
 puts "Bye!"
 
