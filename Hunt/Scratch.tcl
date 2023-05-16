@@ -18,7 +18,7 @@ while {1} {
 	}
 
 
-	set fn "Cats.txt" 
+	set fn "Lover/Cats.txt" 
 	if {[file exists $fn]} {
 		after 100
 		set o [open $fn r]
@@ -33,7 +33,7 @@ while {1} {
 		}
 	}
 
-	set fn "Dorothea.txt"
+	set fn "Evermore/Dorothea.txt"
 	if {[file exists $fn]} {
 		after 100
 		set o [open $fn r]
@@ -41,12 +41,12 @@ while {1} {
 		close $o
 		if {$contents == "Tupelo"} {
 			puts "Yes, she is from Mississippi. Now I want to tell you something but it might take awhile"
-			puts "What would I say if I were to decide to sum it up? Make a new text file called Pedestal.txt that contains the phrase."
+			puts "What would I say if I were to decide to sum it up? Make a new text file called Pedestal.txt that contains the phrase. No capital letters."
 			catch {file delete $fn}
 		}
 	}
 
-	set fn "Pedestal.txt"
+	set fn "Evermore/Pedestal.txt"
 	if {[file exists $fn]} {
 		after 100
 		set o [open $fn r]
@@ -59,7 +59,7 @@ while {1} {
 		}
 	}
 
-	set fn "Blaze.txt"
+	set fn "1989/Blaze.txt"
 	if {[file exists $fn]} {
 		after 100
 		set o [open $fn r]
