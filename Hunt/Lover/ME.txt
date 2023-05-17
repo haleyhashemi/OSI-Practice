@@ -1,1 +1,6 @@
-Hey kids, spelling is fun! In the music video for ME! she plays with a cat. Did you know she adopted this cat? How many cats does she have? Create a text file in the Lover directory called Cats.txt, with the correct number as its text
+This song is probably the worst song she has ever released.
+In this same directory, open the text file called "oof.txt"
+It contains some of the lyrics of this song. 
+Count how many E's are in the lyrics, and if you can get
+Past how cringe-worthy they are, create a text file called
+"MeEs.txt" with the numerical value as its contents.

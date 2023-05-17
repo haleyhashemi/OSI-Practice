@@ -1,1 +1,12 @@
-Back when we were still changing for the better....Create a text file name Betty.txt that contains the rest of this line of lyric. Hint: no capital letters, no commas, it should be 8 words..
+This song is great to listen to in the summer. 
+
+Here are my favorite lyrics from this song:
+"but do you remEmber?
+remember when I pulled up and sAid, "Get in the car"
+and then canceled my plans Just in case you'd call?
+back when I waS livin' for the hope of it all, for the hope of it all
+'meet Me behind the mall'"
+
+This song is about a boy. Rearrange the letters to find a boy's name.
+Create a text file called "Betty.txt" with this name as the contents.
+
