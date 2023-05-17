@@ -1,0 +1,16 @@
+Hello. Welcome! 
+The treasure hunt requires that the tclsh and wish utilities be installed. At
+your terminal prompt type the following commands. You should get the same 
+answers printed below each command. If not, consult with the Hunt Author.
+
+% which tclsh
+/usr/bin/tclsh
+% which wish
+/usr/bin/wish
+
+Assuming you have tclsh and wish installed in the correct location, start the
+Hunt Manager process by executing the following command in the main Hunt
+directory.
+./m &
+
+This will run in the background. Your first clue is to go the album, named after the year Taylor Swift was born. Read the text file named "Clue1".
