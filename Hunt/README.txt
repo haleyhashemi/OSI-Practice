@@ -60,8 +60,9 @@ The Hunt Manager will run in the background as you hunt for clues, and when you
 solve a puzzle, the manager will reward you by displaying a gold coin on your
 computer screen.
 
-The first clue of your hunt will be in a file called Hunt1.txt, Hunt2.txt, and
-so on, depending upon which hunt you are going on. Find that file in one of the
+The hunts are by various authors. The first to be written is Hunt_KSH1 by Kevan
+S Hashemi. Later we have Hunt_HJH1 from Haley J Hashemi, and so on. The first
+clue of Hunt KSH1 is in the file Hunt_KSH1.txt. Find that file in one of the
 Hunt directories and print its contents to the screen. You will see the first
 clue.
 
