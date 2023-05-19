@@ -37,6 +37,14 @@ proc goto_cmd {A} {
 	}
 }
 
+# This code counts the amount of words in a file. 
+# fn in yellow is the argument variable, and that name of the file that is entered 
+# next to "WORDCOUNT" is content of the variable/argument. Here I have a standard
+# If clause following the defined argument. 
+# Use string trim to count the words and ignore empty space at the beginning of the end of the text.
+# Use split { } to remove the places in the text where there are two spaces, which
+# Will be confuse string trim. The curly brackets include a space in the middle.
+# Close the file. 
 proc wordcount_cmd {fn} {
 	if {[file exists $fn]} {
 		set f [open $fn r]
@@ -53,9 +61,92 @@ proc fromascii_cmd {numlist} {
 	}
 }
 
-proc toascii_cmd {charlist} {
-	foreach char $charlist {
-		puts [scan $char %c]
+proc toascii_cmd {args} {
+
+	# Convert args into flat string.
+	set args [join $args]
+
+	# Deal with options.
+	# Code below explained:
+	# Using foreach, the loop will run through each arg and execute commands 
+	# Based on the value of the arg.
+	# Because the first value should be -i, and getoutfile / getinfile are false,
+	# The foreach loop will skip those two components.
+	# If $a is -i, it will set the getinfile to true
+	# The variable newargs has the contents of args, so the foreach loop sets the new contents of newargs
+	# To $newargs with the first argument removed, so that the foreach loop
+	# Can repeat itself with the second argument, and so forth.
+	# Now, with the second argument that should be a text name,
+	# The foreach loop will execute the first if command because the new value of 
+	# Getinfile has been set to true by the previous loop
+	# It will then set the variable infile to have the contents of the second argument, which is a text file
+	# Then, the getinfile is set back to 0 so the loop won't go through that iteration again.
+	# Now it will go through the loop again, with the argumnet "-o"
+	# Once the argument -o is recognized, the foreach loop sets the getoutfile to true (1).
+	# To be continued on monday..
+	set getinfile 0
+	set infile ""
+	set getoutfile 0
+	set outfile ""
+	set newargs $args
+	foreach a $args {
+		puts $a
+		if {$getinfile} {
+			set infile $a
+			set getinfile 0
+			puts "set infile to $a"
+		} elseif {$getoutfile} {
+			set outfile $a
+			set getoutfile 0
+			puts "set outfile to $a"
+		} elseif {$a == "-i"} {
+			set getinfile 1
+			puts "ready to get infile"
+		} elseif {$a == "-o"} {
+			set getoutfile 1
+			puts "ready to get outfile"
+		} else {
+			puts "breaking out of loop"
+			break
+		}
+		set newargs [lrange $newargs 1 end]
+		puts "setting arg list to $newargs"
+	}
+
+	puts "infile = \"$infile\""
+	puts "ouffile = \"$outfile\""
+
+
+	# Get the input.
+	if {$infile != ""} {
+		if {![file exists $infile]} {
+			error "file \"$infile\" does not exist"
+		}
+		set f [open $infile r]
+		set contents [read $f]
+		close $f
+	} else {
+		set contents $newargs
+	}
+
+	puts "contents = $contents"
+
+	
+	# Create list of ascii values.
+	set ascii ""
+	for {set i 0} {$i < [string length $contents]} {incr i} {
+		lappend ascii [scan [string index $contents $i] %c]
+	}
+
+	puts "ascii = $ascii"
+
+	# Write list to output.
+	if {$outfile != ""} {
+		set f [open $outfile w]
+		puts $f $ascii 
+		close $f
+	} else {
+		puts $ascii
 	}
 }
 
@@ -110,8 +201,9 @@ while {1} {
 		fromascii_cmd [lrange $ans 1 end]
 	} else {
 		puts "$ans not recognized."
+
 	}
 
 }
 puts "Bye!"
-
+-
