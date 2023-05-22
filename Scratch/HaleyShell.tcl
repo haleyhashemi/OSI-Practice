@@ -56,7 +56,7 @@ proc wordcount_cmd {fn} {
 } 
 
 
-
+# Root mean square command below.
 proc rms_cmd {args} {
 	set args [join $args]
 	set getinfile 0
@@ -93,7 +93,7 @@ proc rms_cmd {args} {
 		set sqr 0
 		set total 0
 		foreach val $contents {
-			incr sqr [expr $val * $val]
+			set sqr [expr {$val * $val} + $sqr]
 			incr total 1
 		}
 		set meansquare [expr $sqr / $total]
@@ -101,10 +101,8 @@ proc rms_cmd {args} {
 		puts $rms
 	}
 	if {$outfile != "" } {
-			if {![file exists $outfile]} {
-			error "file \"$outfile\" doesn't exist"
-		} set f [open $outfile w]
-		puts $f $rms 
+		set f [open $outfile w]
+		puts $f $rms
 		close $f
 	} else {
 		puts $rms
@@ -112,7 +110,71 @@ proc rms_cmd {args} {
 		
 }
 
+# Standard deviation command below. 
 
+proc stdev_cmd {args} {
+	set args [join $args]
+	set getinfile 0
+	set infile ""
+	set getoutfile 0
+	set outfile ""
+	set newargs $args
+	foreach a $args {
+		if {$getinfile} {
+			set infile $a
+			set getinfile 0
+			puts "set infile to $a"
+		} elseif {$getoutfile} {
+			set outfile $a
+			set getoutfile 0
+			puts "outfile is $a"
+		} elseif {$a == "-i"} {
+			set getinfile 1
+		} elseif {$a == "-o"} {
+			set getoutfile 1
+		} else {
+			puts "breaking out of loop"
+			break
+		} 
+		set newargs [lrange $newargs 1 end]
+	}
+
+	puts "infile = \"$infile\""
+	puts "outfile = \"$outfile\""
+
+	if {$infile != ""} {
+		set f [open $infile r]
+		set contents [read $f]
+		set sum 0
+		set diff 0
+		set N 0
+		foreach val $contents {
+			set sum [expr {$val + $sum}]
+			incr N 1
+		}
+		puts $sum
+		set mean [expr {$sum / double ($N)}]
+		puts $mean
+		puts $N
+		foreach val $contents {
+			set diff [expr ($val - $mean) * ($val - $mean)  +$diff]
+		}
+		puts $diff
+		set stdev [expr {sqrt ($diff /$N)}]
+		puts $stdev
+	} 
+
+	if {$outfile != "" } {
+		if {![file exists $outfile]} {
+		error "File \"$outfile\" does not exist"
+		}
+		set f [open $outfile w]
+		puts $f $stdev
+		close $f
+	}
+}
+
+# From ASCII command below.
 
 proc fromascii_cmd {args} {
 	set args [join $args]
@@ -168,7 +230,7 @@ proc fromascii_cmd {args} {
 	if {$outfile != ""} {
 		if {![file exists $outfile]} {
 			error "file \"$outfile\" doesn't exist"
-		} set f [open $outfile w]
+		}set f [open $outfile w]
 		puts $f $ascii 
 		close $f
 	} else {
@@ -176,6 +238,8 @@ proc fromascii_cmd {args} {
 	}
 }	
 
+
+# To ASCII command below with explanations.
 
 proc toascii_cmd {args} {
 	# Convert args into flat string.
@@ -317,6 +381,8 @@ while {1} {
 		fromascii_cmd [lrange $ans 1 end]
 	} elseif {[lindex $ans 0] == "RMS"} {
 		rms_cmd [lrange $ans 1 end]
+	} elseif {[lindex $ans 0] == "STDEV"} {
+		stdev_cmd [lrange $ans 1 end]
 	} else {
 		puts "$ans not recognized."
 
