@@ -1,0 +1,21 @@
+Hi there! Some of the words are missing letters, in the song below. 
+Please identify the missing letters, when they are unscrambled they
+Should spell out a word that represents finality. 
+
+Flashing lights
+And we took a wrong turn
+And we fel down a rabbit hole
+You held on tight to me
+'Cause nothing's as it sems
+And spinning out of ontrol
+
+[Pre-Chorus]
+Didn't they tell us "Don't rush into things"?
+Didn't yo flash your green eyes at me?
+Haven't you heard what becomes of curius minds?
+Ooh, didn't it all seem new and exciting?
+I felt your arms twistin' aound me
+I hould have slept with one eye open at night
+
+Create a text file called "Goodbye.txt" with the word, unscrambled,
+as the contents.

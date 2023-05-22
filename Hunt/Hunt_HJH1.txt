@@ -1,4 +1,4 @@
 Hello. Welcome! 
 
 Your first clue is to go the album, named after the year Taylor Swift was born. 
-Read the text file named "Clue1".
+Read the text file named "Clue1". Hint: Use the ls command. She is a millennial.

@@ -1,1 +1,9 @@
-Is it cool that I said all that? The color of her dress in this music video is the same color that she describes having in the song, Cruel Summer. Go read the text named after this color in the Evermore directory.
+Taylor has a penchant for a specific color. 
+Here are some of her lyrics that contain this mystery color:
+"Oh damn, never seen that color ___"
+"And its ___, the feeling I've got"
+"Dont want no other shade of ___ but you"
+"Deep ___ but you painted me golden"
+
+Using contextual clues, make a file called "Color.txt" 
+With the correct color as its contents.

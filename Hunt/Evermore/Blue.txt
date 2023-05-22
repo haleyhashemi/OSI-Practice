@@ -1,1 +1,23 @@
-Nice job. Now, where is dorothea originally from? Create a text file called Dorothea.txt with the name of the city written in the file
+Hello, my blue friend. Here is the track list for evermore:
+
+Willow
+Champagne problems
+Gold rush 
+'Tis the damn season
+Tolerate it
+No body, no crime
+Happiness
+Dorothea
+Coney Island
+Ivy
+Cowboy like me
+Long story short
+Marjorie
+Closure
+Evermore
+
+Which song do you think has the following lyrics?
+"He reports his missing wife, and I notice when I pass his house
+his truck has got some brand new tires". Create a text file 
+called "Suspicious.txt", the contents should be the number of the 
+Song on the tracklist, written as an integer.
