@@ -55,14 +55,129 @@ proc wordcount_cmd {fn} {
 	}
 } 
 
-proc fromascii_cmd {numlist} {
-	foreach number $numlist {
-		puts [format %c $number]
+
+
+proc rms_cmd {args} {
+	set args [join $args]
+	set getinfile 0
+	set infile ""
+	set getoutfile 0
+	set outfile ""
+	set newargs $args
+	foreach a $args {
+		if {$getinfile} {
+			set infile $a
+			set getinfile 0
+			puts "set infile to $a"
+		} elseif {$getoutfile} {
+			set outfile $a
+			set getoutfile 0
+			puts "outfile is $a"
+		} elseif {$a == "-i"} {
+			set getinfile 1
+		} elseif {$a == "-o"} {
+			set getoutfile 1
+		} else {
+			puts "breaking out of loop"
+			break
+		} 
+		set newargs [lrange $newargs 1 end]
 	}
+
+	puts "infile = \"$infile\""
+	puts "outfile = \"$outfile\""
+
+	if {$infile != ""} {
+		set f [open $infile r]
+		set contents [read $f]
+		set sqr 0
+		set total 0
+		foreach val $contents {
+			incr sqr [expr $val * $val]
+			incr total 1
+		}
+		set meansquare [expr $sqr / $total]
+		set rms [expr {sqrt ($meansquare)}]
+		puts $rms
+	}
+	if {$outfile != "" } {
+			if {![file exists $outfile]} {
+			error "file \"$outfile\" doesn't exist"
+		} set f [open $outfile w]
+		puts $f $rms 
+		close $f
+	} else {
+		puts $rms
+	}
+		
 }
 
-proc toascii_cmd {args} {
 
+
+proc fromascii_cmd {args} {
+	set args [join $args]
+	set getinfile 0
+	set infile ""
+	set getoutfile 0
+	set outfile ""
+	set newargs $args
+	foreach a $args {
+		puts $a 
+		if {$getinfile} {
+			set infile $a
+			set getinfile 0 
+			puts "set infile to $a"
+		} elseif {$getoutfile} {
+			set outfile $a
+			set getoutfile 0
+			puts "set outfile to $a"
+		} elseif {$a == "-i"} {
+			set getinfile 1
+			puts "ready to get infile"
+		} elseif {$a == "-o"} {
+			set getoutfile 1
+			puts "Ready to get outfile"
+		} else {
+			puts "breaking out of loop"
+			break
+		}
+		set newargs [lrange $newargs 1 end]
+		puts "Setting args list to $newargs"
+	}
+	puts "infile = \"$infile\""
+	puts "outfile - \"$outfile\""
+
+	if {$infile != "" } {
+		if {![file exists $infile]} {
+			error "file \"$infile\" does not exist"
+		}
+		set f [open $infile r]
+		set contents [read $f]
+		close $f
+	} else {
+		set contents $newargs
+	}
+	puts "contents = $contents"
+
+	set ascii ""
+	for {set i 0} {$i < [string length $contents]} {incr i} {
+		lappend ascii [scan [string index $contents $i] %c]
+	}
+	puts "ascii = $ascii"
+	
+	if {$outfile != ""} {
+		if {![file exists $outfile]} {
+			error "file \"$outfile\" doesn't exist"
+		} set f [open $outfile w]
+		puts $f $ascii 
+		close $f
+	} else {
+		puts $ascii
+	}
+}	
+
+
+proc toascii_cmd {args} {
 	# Convert args into flat string.
 	set args [join $args]
 
@@ -117,7 +232,8 @@ proc toascii_cmd {args} {
 	puts "ouffile = \"$outfile\""
 
 
-	# Get the input.
+	# Get the input. If infile name is not blank, and it exists, it will read the contents
+	# And set the contents to be equal 
 	if {$infile != ""} {
 		if {![file exists $infile]} {
 			error "file \"$infile\" does not exist"
@@ -149,6 +265,8 @@ proc toascii_cmd {args} {
 		puts $ascii
 	}
 }
+
+
 
 while {1} { 
 	puts -nonewline "HHSH> "
@@ -195,10 +313,10 @@ while {1} {
 		change_cmd [lindex $ans 1] [lindex $ans 2]
 	} elseif {[lindex $ans 0] == "WORDCOUNT"} {
 		wordcount_cmd [lindex $ans 1]
-	} elseif {[lindex $ans 0] == "TOASCII"} {
-		toascii_cmd [lrange $ans 1 end]
 	} elseif {[lindex $ans 0] == "FROMASCII"} {
 		fromascii_cmd [lrange $ans 1 end]
+	} elseif {[lindex $ans 0] == "RMS"} {
+		rms_cmd [lrange $ans 1 end]
 	} else {
 		puts "$ans not recognized."
 
