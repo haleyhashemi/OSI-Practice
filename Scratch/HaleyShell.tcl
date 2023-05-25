@@ -2,6 +2,20 @@
 
 #EXIT cmd
 
+
+proc rand_cmd {args} {
+	set fn $args
+	set f [open $fn w]
+	set values ""
+	set min 0
+	set max 100000
+	for {set i 0} { $i < $max} {incr i} {
+			lappend values [expr $i / 10000]
+		} 
+	puts $f $values
+}
+
+
 proc change_cmd {N1 N2} {
 	set diff [expr $N2 - $N1]
 	set change [expr {$diff / double ($N1)} * 100]
@@ -110,6 +124,8 @@ proc rms_cmd {args} {
 		
 }
 
+
+
 # Standard deviation command below. 
 
 proc stdev_cmd {args} {
@@ -143,6 +159,9 @@ proc stdev_cmd {args} {
 	puts "outfile = \"$outfile\""
 
 	if {$infile != ""} {
+		if {![file exists $infile]} {
+			error "File \"$infile\" does not exist"
+		}
 		set f [open $infile r]
 		set contents [read $f]
 		set sum 0
@@ -172,6 +191,7 @@ proc stdev_cmd {args} {
 		puts $f $stdev
 		close $f
 	}
+	
 }
 
 # From ASCII command below.
@@ -219,23 +239,23 @@ proc fromascii_cmd {args} {
 	} else {
 		set contents $newargs
 	}
-	puts "contents = $contents"
-
-	set ascii ""
-	for {set i 0} {$i < [string length $contents]} {incr i} {
-		lappend ascii [scan [string index $contents $i] %c]
-	}
-	puts "ascii = $ascii"
 	
+	set ascii ""
+	foreach val $contents {
+		set char [format %c $val]
+		lappend ascii $char}
+		
 	if {$outfile != ""} {
 		if {![file exists $outfile]} {
-			error "file \"$outfile\" doesn't exist"
-		}set f [open $outfile w]
+			error "file \"$outfile\" doesn't exist"}
+		set f [open $outfile w]
 		puts $f $ascii 
 		close $f
 	} else {
 		puts $ascii
 	}
+	puts [exec sh -c "diff -w $infile $outfile |grep \\"]
+	
 }	
 
 
@@ -284,7 +304,7 @@ proc toascii_cmd {args} {
 		} elseif {$a == "-o"} {
 			set getoutfile 1
 			puts "ready to get outfile"
-		} else {
+		} elseif {$a != ""} {
 			puts "breaking out of loop"
 			break
 		}
@@ -293,7 +313,7 @@ proc toascii_cmd {args} {
 	}
 
 	puts "infile = \"$infile\""
-	puts "ouffile = \"$outfile\""
+	puts "outfile = \"$outfile\""
 
 
 	# Get the input. If infile name is not blank, and it exists, it will read the contents
@@ -327,22 +347,23 @@ proc toascii_cmd {args} {
 		close $f
 	} else {
 		puts $ascii
-	}
+	} 
+	puts [exec sh -c "diff -w $infile $outfile |grep \\<"]
+
 }
 
 
-
-while {1} { 
+while {1} {
 	puts -nonewline "HHSH> "
 	flush stdout
 	gets stdin ans
-	if { $ans == "EXIT"} {
-		break 
+	if {$ans == "EXIT"} {
+		break
 	} elseif {$ans == "LIST"} {
 		set direc [glob *]
 		foreach a $direc {
 			puts "$a"
-		} 
+		}
 	} elseif { [lindex $ans 0] == "ISPRIME"} {
 		set N [lindex $ans 1]
 		set is_prime 1
@@ -368,7 +389,6 @@ while {1} {
 		}
 	} elseif {[lindex $ans 0] == "GOTO"} {
 		goto_cmd [lindex $ans 1]
-
 	}  elseif {[lindex $ans 0] == "DIVISIBLE"} {
 			divisible_cmd [lindex $ans 1] [lindex $ans 2]
 	} elseif {[lindex $ans 0] == "PERCENT"} {
@@ -379,15 +399,20 @@ while {1} {
 		wordcount_cmd [lindex $ans 1]
 	} elseif {[lindex $ans 0] == "FROMASCII"} {
 		fromascii_cmd [lrange $ans 1 end]
+	} elseif {[lindex $ans 0] == "TOASCII"} {
+		toascii_cmd [lrange $ans 1 end]
 	} elseif {[lindex $ans 0] == "RMS"} {
 		rms_cmd [lrange $ans 1 end]
 	} elseif {[lindex $ans 0] == "STDEV"} {
 		stdev_cmd [lrange $ans 1 end]
+	} elseif {[lindex $ans 0] == "No52"} {
+		No52_cmd [lindex $ans 1]
 	} else {
 		puts "$ans not recognized."
-
 	}
-
 }
+ 
+
+
 puts "Bye!"
 -
