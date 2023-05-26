@@ -2,6 +2,69 @@
 
 #EXIT cmd
 
+proc help_cmd {args} {
+	puts "Haley Shell commands are executed by the following standard input:"
+	puts "isprime: if isprime is followed by a number the command will return"
+	puts "a string determining if the number is a prime number"
+	puts "list: the list command will print a list of files and directories"
+	puts "in the current directory"
+	puts "rand: the rand command will generate a file called \"numbers.txt\""
+	puts "that contains 10000 real numbers from 0-1"
+	puts "change: the change command will determine the percent increase or decrease"
+	puts "between the first and second integer following the word \"change\""
+	puts "percent: the percent command will determine the percent value for the"
+	puts "first integer of a second integer in the input string"
+	puts "divisible: the divisible command will determine whether the first"
+	puts "integer in the input string is divisible by the second integer in the string"
+	puts "goto: the goto command will navigate to the directory name given by"
+	puts "the input string"
+	puts "wordcount: the wordcout command will count the number of words in the"
+	puts "text file given by the input string"
+	puts "rms: the rms command will calculate the root mean square value"
+	puts "of the integers in the input string. If you'd like to read integers"
+	puts "from a file, and print the rms value to a new file, enter:"
+	puts "rms -i <infile.txt> -o <outfile.txt>" 
+	puts "stdev: the stdev command will calculate the standard deviation value"
+	puts "of the integers in the input string. If you'd like to read integers"
+	puts "from a file, and print the stdev value to a new file, enter:"
+	puts "putsstdev -i <infile.txt> -o <outfile.txt>"
+	puts "toascii: the toascii command will convert the characters in the input string"
+	puts "to ascii values. If you'd like to read integers" 
+	puts "from a file, and print the ascii values to a new file, enter:" 
+	puts "toascii -i <infile.txt> -o <outfile.txt>"
+	puts "fromascii: the fromascii command will convert the characters in the input string"
+	puts "to ascii values. If you'd like to read integers "
+	puts "from a file, and print the characters to a new file, enter:"
+	puts "fromascii -i <infile.txt> -o <outfile.txt> "
+			
+}
+
+proc isprime_cmd {args} {
+	set is_prime 1
+ 	for {set i 2} {$i < $args} {incr i} {
+ 		if {$args % $i == 0} {
+ 			set is_prime 0
+ 			break
+ 		} 	 
+ 		if {$i % 1000000 == 0} {
+ 			puts -nonewline "."
+ 			flush stdout
+ 		} 
+	} 
+	if {$is_prime} {
+		puts "The number \"$args\" is prime."
+	} else {
+		puts "The number \"$args\" is not prime."
+	}
+}
+
+
+
+proc list_cmd {args} {
+	set args [glob *]
+	foreach a $args {
+					puts "$a"}
+}
 
 proc rand_cmd {args} {
 	set fn $args
@@ -168,18 +231,18 @@ proc stdev_cmd {args} {
 		set diff 0
 		set N 0
 		foreach val $contents {
-			set sum [expr {$val + $sum}]
+			set sum [expr $val + $sum]
 			incr N 1
 		}
 		puts $sum
-		set mean [expr {$sum / double ($N)}]
+		set mean [expr $sum / double ($N)]
 		puts $mean
 		puts $N
 		foreach val $contents {
 			set diff [expr ($val - $mean) * ($val - $mean)  +$diff]
 		}
 		puts $diff
-		set stdev [expr {sqrt ($diff /$N)}]
+		set stdev [expr sqrt ($diff /$N)]
 		puts $stdev
 	} 
 
@@ -204,10 +267,10 @@ proc fromascii_cmd {args} {
 	set outfile ""
 	set newargs $args
 	foreach a $args {
-		puts $a 
+		puts $a
 		if {$getinfile} {
 			set infile $a
-			set getinfile 0 
+			set getinfile 0
 			puts "set infile to $a"
 		} elseif {$getoutfile} {
 			set outfile $a
@@ -218,44 +281,49 @@ proc fromascii_cmd {args} {
 			puts "ready to get infile"
 		} elseif {$a == "-o"} {
 			set getoutfile 1
-			puts "Ready to get outfile"
-		} else {
+			puts "ready to get outfile"
+		} elseif {$a != ""} {
 			puts "breaking out of loop"
 			break
-		}
+		} 
 		set newargs [lrange $newargs 1 end]
-		puts "Setting args list to $newargs"
+		puts "setting arg list to $newargs"
 	}
+	
+	
+	
 	puts "infile = \"$infile\""
-	puts "outfile - \"$outfile\""
+	puts "outfile = \"$outfile\""
 
 	if {$infile != "" } {
 		if {![file exists $infile]} {
-			error "file \"$infile\" does not exist"
-		}
-		set f [open $infile r]
-		set contents [read $f]
-		close $f
+			error "no file named \"$infile\" exists"
+		} else {
+			set f [open $infile r]
+			set contents [read $f]
+			close $f
+		} 
 	} else {
 		set contents $newargs
 	}
+	puts $contents
+	
+		
 	
 	set ascii ""
 	foreach val $contents {
 		set char [format %c $val]
-		lappend ascii $char}
+		append ascii $char
+	}
 		
 	if {$outfile != ""} {
-		if {![file exists $outfile]} {
-			error "file \"$outfile\" doesn't exist"}
 		set f [open $outfile w]
 		puts $f $ascii 
 		close $f
 	} else {
-		puts $ascii
+		puts "\"$ascii\""
 	}
-	puts [exec sh -c "diff -w $infile $outfile |grep \\"]
-	
+
 }	
 
 
@@ -308,9 +376,10 @@ proc toascii_cmd {args} {
 			puts "breaking out of loop"
 			break
 		}
-		set newargs [lrange $newargs 1 end]
-		puts "setting arg list to $newargs"
 	}
+		set newargs [lrange $newargs 0 end]
+		puts "setting arg list to $newargs"
+	
 
 	puts "infile = \"$infile\""
 	puts "outfile = \"$outfile\""
@@ -318,18 +387,18 @@ proc toascii_cmd {args} {
 
 	# Get the input. If infile name is not blank, and it exists, it will read the contents
 	# And set the contents to be equal 
-	if {$infile != ""} {
-		if {![file exists $infile]} {
+		if {$infile != "" } {
+			if {![file exists $infile]} {
 			error "file \"$infile\" does not exist"
-		}
-		set f [open $infile r]
-		set contents [read $f]
-		close $f
-	} else {
+		} else {
+			set f [open $infile r]
+			set contents [read $f]
+			close $f}
+		} else {
 		set contents $newargs
-	}
-
-	puts "contents = $contents"
+	}	
+	puts $contents
+	
 
 	
 	# Create list of ascii values.
@@ -342,77 +411,79 @@ proc toascii_cmd {args} {
 
 	# Write list to output.
 	if {$outfile != ""} {
-		set f [open $outfile w]
-		puts $f $ascii 
-		close $f
-	} else {
-		puts $ascii
-	} 
-	puts [exec sh -c "diff -w $infile $outfile |grep \\<"]
+		if {![file exists $outfile]} {
+			error "file \"$outfile\" does not exist"
+			} else {
+				set f [open $outfile w]
+				puts $f $ascii 
+				close $f
+				set diff [catch {exec diff $infile $outfile} ]
+				puts $diff
+			}
+		} else {
+			puts $ascii
+		} 
 
+	
 }
-
+# Switch $ans -
 
 while {1} {
 	puts -nonewline "HHSH> "
 	flush stdout
 	gets stdin ans
-	if {$ans == "EXIT"} {
-		break
-	} elseif {$ans == "LIST"} {
-		set direc [glob *]
-		foreach a $direc {
-			puts "$a"
+	set cmd [lindex $ans 0]
+	set args [lrange $ans 1 end]
+	if {[catch {
+		switch -nocase $cmd {
+			"EXIT" {exit}
+			"LIST" {
+				list_cmd $cmd
+			}
+			"ISPRIME" {
+				isprime_cmd $args	
+	  		}
+			"HELP" {
+				help_cmd $args
+			}
+			"GOTO" {
+				goto_cmd $args
+			}
+			"DIVISIBLE" {
+				divisible_cmd [lindex $args 0] [lindex $args 1]
+			} 
+			"PERCENT" {
+				percent_cmd [lindex $args 0] [lindex $args 1]
+			} 
+			"CHANGE" {
+				change_cmd [lindex $args 0] [lindex $args 1]
+			}
+			"WORDCOUNT" {
+				wordcount_cmd $args
+			}
+			"FROMASCII" {
+				fromascii_cmd $args
+			} 
+			"TOASCII" {
+				toascii_cmd $args
+			}
+			"RMS" {
+				rms_cmd $args
+			}
+			"STDEV" {
+				stdev_cmd $args
+			}
+			"No52" {
+				No52_cmd $args
+			}
+			default {
+				error "no such command \"$cmd\""
+			}
 		}
-	} elseif { [lindex $ans 0] == "ISPRIME"} {
-		set N [lindex $ans 1]
-		set is_prime 1
-  	 	for {set i 2} {$i < $N} {incr i} {
-  	 		if {$N % $i == 0} {
-  	 			set is_prime 0
-  	 			break
-  	 		} 	 
-  	 		if {$i % 1000000 == 0} {
-  	 			puts -nonewline "."
-  	 			flush stdout
-  	 		} 
-  		} 
-  		if {$is_prime} {
-  			puts "The number \"$N\" is prime."
-  		} else {
-  			puts "The number \"$N\" is not prime."
-  		}
-  	} elseif {$ans == "HELP"} {
-		set help " Here! Hi {1:Go to README file} {2:Ask Haley} {3:Listen to Bejeweled by TS}"
-		foreach h $help {
-			puts $h
-		}
-	} elseif {[lindex $ans 0] == "GOTO"} {
-		goto_cmd [lindex $ans 1]
-	}  elseif {[lindex $ans 0] == "DIVISIBLE"} {
-			divisible_cmd [lindex $ans 1] [lindex $ans 2]
-	} elseif {[lindex $ans 0] == "PERCENT"} {
-		percent_cmd [lindex $ans 1] [lindex $ans 2]
-	} elseif {[lindex $ans 0] == "CHANGE"} {
-		change_cmd [lindex $ans 1] [lindex $ans 2]
-	} elseif {[lindex $ans 0] == "WORDCOUNT"} {
-		wordcount_cmd [lindex $ans 1]
-	} elseif {[lindex $ans 0] == "FROMASCII"} {
-		fromascii_cmd [lrange $ans 1 end]
-	} elseif {[lindex $ans 0] == "TOASCII"} {
-		toascii_cmd [lrange $ans 1 end]
-	} elseif {[lindex $ans 0] == "RMS"} {
-		rms_cmd [lrange $ans 1 end]
-	} elseif {[lindex $ans 0] == "STDEV"} {
-		stdev_cmd [lrange $ans 1 end]
-	} elseif {[lindex $ans 0] == "No52"} {
-		No52_cmd [lindex $ans 1]
-	} else {
-		puts "$ans not recognized."
+	} error_message]} {
+		puts "ERROR: $error_message\."
 	}
 }
  
 
 
-puts "Bye!"
--
