@@ -5,6 +5,17 @@
 # which is the time in GMT
 # NOTE I still need to figure out how to convert every file name to unix
 
+# Scores command works by opening each csv file in the directory, and calculating the 
+# wake/sleep/background value for every second. Each second is 25 lines in the file.
+# It then writes the value per second to a new outfile as a list. 
+# Regexp is used to identify the start time of the scoring for each file by 
+# looking for the pattern of numbers in the file name.
+# Clock scan command takes these numbers and formats them to unix time, assuming the 
+# the standard times were recorded in the GMT time zone.
+# However, these values were recorded in British Summer Time which is one hour ahead of GMT.
+# It was tricky to find the British Summer Time timezone indicator for tcl, so 
+# the unix start time is set to GMT time, and then 600s (one hour) is added to this to 
+# bring it back to BST.
 
 proc scores_cmd {fn outfile} {
 	set outfile $outfile
@@ -13,6 +24,8 @@ proc scores_cmd {fn outfile} {
 	set data [lrange $contents 1 end]
 	regexp {([0-9]+)_labels} $fn a b
 	set unixtime [clock scan $b -format %Y%m%d%H%M%S -gmt 1]
+	set unixtime [expr $unixtime + 600]
+	puts $unixtime
 	while {[llength $data] >= 25} {
 		set interval [lrange $data 0 24]
 		set data [lrange $data 25 end]
@@ -45,6 +58,13 @@ proc scores_cmd {fn outfile} {
 }	
  
 
+# Fixtime procedure will take an .ndf file and assign each characteristic line a unix time stamp,
+# based on the initial unix time the recording began. 
+# Using regexp, the integers in the first value of the first line of the list are extracted and 
+# assigned to variable b
+# Then, for each line of the characteristics file, the first and second element are replaced with
+# the initial unix time plus the time elapsed in seconds since the recording began.
+# Each line is written to an outfile to create a new list.
 
 proc fixtime_cmd {fn out} {
 	set outfile $out 
@@ -59,22 +79,14 @@ proc fixtime_cmd {fn out} {
 	}
 }
 
-proc index_cmd {fn} {
-	set f [open $fn r]
-	set contents [split [string trim [read $f]] \n]
-	close $f
-	set index [lsearch -index 0 $contents "1680184627.0"]
-	puts $index	
-	set contents [lrange $contents $index end]
-	set outfile [open FinalNPvalues.txt w]
-	foreach line $contents {
-		puts $outfile
-	}
-	close $outfile
-	
-}
+
 		
-#lindex list N 
+# Match procedure sorts through two lists by comparing the values of their first elements in each line
+# If value A > value B, the line containing value B is discarded, and vice verse
+# If the elements match, both lines are written to a new file as a new line in a list. 
+# Then, both of the lines containing the matching first element are discarded so the sorting 
+# can continue.
+
 proc match_cmd {fn1 fn2} {
 	set outfile [open final.csv w]
 	puts $outfile
@@ -172,9 +184,6 @@ while {1} {
 			} 
 			"scores" {
 				eval "scores_cmd $args"
-			}
-			"index" {
-				index_cmd $args
 			}
 			"exit" {
     			exit
