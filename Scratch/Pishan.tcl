@@ -1,7 +1,7 @@
 
 
 # unix_cmd will take an input file with time stamps from 0
-# and will convert these time stamps to unix time based on the file name
+# and will convert topehese time stamps to unix time based on the file name
 # which is the time in GMT
 # NOTE I still need to figure out how to convert every file name to unix
 
@@ -39,7 +39,7 @@ proc scores_cmd {fn outfile} {
 		} else {
 			set background 1
 		}
-		puts $outfile "$unixtime $wake $sleep $background"
+		puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
 		incr unixtime
 	}
 }	
@@ -68,7 +68,7 @@ proc index_cmd {fn} {
 	set contents [lrange $contents $index end]
 	set outfile [open FinalNPvalues.txt w]
 	foreach line $contents {
-		puts $outfile $line
+		puts $outfile
 	}
 	close $outfile
 	
@@ -77,32 +77,36 @@ proc index_cmd {fn} {
 #lindex list N 
 proc match_cmd {fn1 fn2} {
 	set outfile [open final.csv w]
-	set open_scores [open $fn1 r]
-	set open_characteristics [open $fn2 r]
-	set content_scores [split [string trim [read $open_scores]] \n]
-	set content_characteristics [split [string trim [read $open_characteristics]] \n]
-	puts [lindex $content_characteristics 4]
-	
-	for {set i 0} {$i < [llength $content_scores]} {incr i} {
-			set line [lindex $content_scores 0]
-			set line2 [lindex $content_characteristics 0]
-			lappend finalline "$line $line2"
-			set content_scores [lrange $content_scores 1 end]
-			set content_characteristics [lrange $content_characteristics 1 end]	
+	puts $outfile
+	set open_s [open $fn1 r]
+	set open_c [open $fn2 r]
+	set A [split [string trim [read $open_s]] \n]
+	set B [split [string trim [read $open_c]] \n]
+	close $open_s
+	close $open_c
+	set outlist ""
+	while {[llength $A] > 0 && [llength $B] > 0 } {
+		set a [lindex $A 0]
+		set b [lindex $B 0]
+		if {[lindex $a 0] > [lindex $b 0]} {
+			set B [lrange $B 1 end]
+			
+		} elseif {[lindex $b 0] > [lindex $a 0]} {
+			set A [lrange $A 1 end]
+			puts [llength $A]
+			puts [llength $B]
+		} else {
+			lappend outlist "$a [lrange $b 1 end]"
+			set A [lrange $A 1 end]
+			set B [lrange $B 1 end]
+			puts [llength $A]
+			puts [llength $B]
+		}
 	}
-
-	foreach line $finalline { 
-		set one [lrange $line 0 3]
-		set two [lrange $line 5 6]
-		lappend newline "$one $two"
-	}
-	
-	foreach line $newline {
+	foreach line $outlist { 
 		puts $outfile $line
-	}
 	
-	close $open_scores
-	close $open_characteristics
+	}
 	close $outfile
 }
 
@@ -123,21 +127,21 @@ proc findfiles {dir {pattern "*"}} {
 	return $file_list
 	
 }
-
-foreach fn [findfiles [pwd] "*LWDAQ.txt"] {
+set cfile_pattern "*LWDAQ.txt"
+foreach fn [findfiles [pwd] $cfile_pattern] {
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] \n]
 	close $f
 	puts "[file tail $fn] [llength $contents]"
 }
 set out [open NPvalues.txt w]
-foreach fn [findfiles [pwd] "*LWDAQ.txt"] {
+foreach fn [findfiles [pwd] $cfile_pattern] {
 	fixtime_cmd $fn $out
 }
 close $out
 
-
-foreach fn [findfiles [pwd] "*.csv"] {
+set csv_pattern "*.csv"
+foreach fn [findfiles [pwd] $csv_pattern] {
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] \n]
 	close $f
@@ -145,7 +149,7 @@ foreach fn [findfiles [pwd] "*.csv"] {
 }
 
 set outfile [open wakesleep.txt w]
-foreach fn [findfiles [pwd] "*.csv"] {
+foreach fn [findfiles [pwd] $csv_pattern] {
 	scores_cmd $fn $outfile
 }	
 close $outfile
