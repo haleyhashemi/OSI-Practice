@@ -1,12 +1,12 @@
 
 
 
-# Proc_scores opens a csv file in the directory, and
-# Proc_scores will first assign the proper unix time to each second of values, assuming that the 
-# date of the recordings is the file name in numerical "YMDHMS" form, recorded in BST time zone. 
-# This procudure assumes that a second is 25 frames, and each frame denotes 
-# a value wake, sleep, background, or unknown. Proc_Scores will then assign a 1 or 0 for each category per second, 
-# and the results will be printed to a text outfile.
+# Proc_scores opens a csv file in the current directory if the directory file name is
+# a time in numerical "YMDHMS" form. This proc assumes the time is British Summer Time zone.
+# This procudure assumes that this file a second is 25 frames, and that each frame denotes 
+# a binary wake, sleep, background, or unknown value. Based on the values for each 25 frames,
+# Proc_Scores will then assign a 1 or 0 for each category per second, 
+# and the results will be printed to a text outfile called wakesleep.txt
 
 proc scores_cmd {fn outfile} {
 	set outfile $outfile
@@ -60,14 +60,17 @@ proc fixtime_cmd {fn out} {
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] \n]
 	set startime 0
-	regexp {M([0-9]+)} $contents a b
-	foreach val $contents {
-		set ftime [expr $b + [lindex $val 1]]
-		set val [lreplace $val 0 1 $ftime]
-		puts $out $val
+	if {[regexp {M([0-9]+)} $contents a b]} {
+		foreach val $contents {
+			set ftime [expr $b + [lindex $val 1]]
+			set val [lreplace $val 0 1 $ftime]
+			puts $out $val
+		}
+	} else {
+		puts "error"
 	}
 }
-
+	
 
 		
 # Match procedure sorts through two lists by comparing the values of their first elements in each line
@@ -128,7 +131,7 @@ proc findfiles {dir {pattern "*"}} {
 	return $file_list
 	
 }
-set cfile_pattern "*LWDAQ.txt"
+set cfile_pattern "*M*.txt"
 foreach fn [findfiles [pwd] $cfile_pattern] {
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] \n]
@@ -190,5 +193,4 @@ while {1} {
 
 
 
-#set start [clock scan "30-Mar-2023 13:57:07 GMT" -format {%d-%b-%Y %H:%M:%S %z}]
 	
