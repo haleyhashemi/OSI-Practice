@@ -131,6 +131,7 @@ proc findfiles {dir {pattern "*"}} {
 	return $file_list
 	
 }
+
 set cfile_pattern "*M*.txt"
 foreach fn [findfiles [pwd] $cfile_pattern] {
 	set f [open $fn r]

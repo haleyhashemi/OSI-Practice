@@ -49,7 +49,7 @@ proc help_cmd {args} {
 # Proc_Scores will then assign a 1 or 0 for each category per second, 
 # and the results will be printed to a text outfile called wakesleep.txt
 
-proc scores_cmd {fn outfile timezone} {
+proc scores_cmd {fn outfile timezone interval} {
 	set outfile $outfile
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] \n]
@@ -60,37 +60,68 @@ proc scores_cmd {fn outfile timezone} {
 		}
 		set unixtime [clock scan $b -format %Y%m%d%H%M%S -timezone "$timezone"]
 		set unixtime [expr $unixtime + 600]
-		puts $unixtime
-		while {[llength $data] >= 25} {
-			set interval [lrange $data 0 24]
-			set data [lrange $data 25 end]
-			set wake 0
-			set sleep 0
-			set background 0
-			foreach line $interval {
-				set line [split $line "," ]
-				if {[lindex $line 3] == 1} {incr wake}
-				if {[lindex $line 2] == 1} {incr sleep}
-			} 
-			if {$wake >= 13} {
-				set wake 1
-				set sleep 0
-			} elseif {$sleep >= 13} {
-				set sleep 1
+		if {$interval == "1"} {
+			while {[llength $data] >= 25} {
+				set interval [lrange $data 0 24]
+				set data [lrange $data 25 end]
 				set wake 0
-			} elseif {$wake > $sleep} {
-				set wake 1
 				set sleep 0
-			} elseif {$wake < $sleep} {
-				set sleep 1
-				set wake 0
-			} else {
-				set background 1
+				set background 0
+				foreach line $interval {
+					set line [split $line "," ]
+					if {[lindex $line 3] == 1} {incr wake}
+					if {[lindex $line 2] == 1} {incr sleep}
+				} 
+				if {$wake >= 13} {
+					set wake 1
+					set sleep 0
+				} elseif {$sleep >= 13} {
+					set sleep 1
+					set wake 0
+				} elseif {$wake > $sleep} {
+					set wake 1
+					set sleep 0
+				} elseif {$wake < $sleep} {
+					set sleep 1
+					set wake 0
+				} else {
+					set background 8
+				}
+				puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
+				incr unixtime 8
 			}
-			puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
-			incr unixtime
-	
+		} elseif {$interval == "8"} {
+			while {[llength $data] >= 200} {
+				set interval [lrange $data 0 199]
+				set data [lrange $data 200 end]
+				set wake 0
+				set sleep 0
+				set background 0
+				foreach line $interval {
+					set line [split $line "," ]
+					if {[lindex $line 3] == 1} {incr wake}
+					if {[lindex $line 2] == 1} {incr sleep}
+				} 
+				if {$wake >= 104} {
+					set wake 1
+					set sleep 0
+				} elseif {$sleep >= 104} {
+					set sleep 1
+					set wake 0
+				} elseif {$wake > $sleep} {
+					set wake 1
+					set sleep 0
+				} elseif {$wake < $sleep} {
+					set sleep 1
+					set wake 0
+				} else {
+					set background 1
+				}
+				puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
+				incr unixtime 8
+			}
 		}
+		
 	} else {
 		puts "File $fn is not a viable file for the scores procedure."
 	}	
@@ -592,12 +623,13 @@ proc callfix_cmd {args} {
 	close $out
 }
 	
-proc callscores_cmd {args} {
-	set timezone $args
+proc callscores_cmd {timezone interval} {
+	set timezone $timezone
+	set interval $interval
 	set csv_pattern "*.csv"	
 	set outfile [open wakesleep.txt w] 
 	foreach fn [findfiles [pwd] $csv_pattern] {
-		scores_cmd $fn $outfile $timezone
+		scores_cmd $fn $outfile $timezone $interval
 	}
 	close $outfile
 }
@@ -643,9 +675,11 @@ while {1} {
 				toascii_cmd $args
 			}
 			"SCORES" {
-				puts "Please enter the abbreviated time zone for your files."
-				set ans [gets stdin] 
-				callscores_cmd $ans
+				puts "Please enter the abbreviated time zone for your files." 
+				set timezone [gets stdin]
+				puts "Thanks, now please enter the interval processing length for the program."
+				set interval [gets stdin]
+				callscores_cmd $timezone $interval
 				
 			}
 			"FIXTIME" {

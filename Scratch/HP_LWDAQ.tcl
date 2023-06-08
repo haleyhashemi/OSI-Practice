@@ -22,16 +22,6 @@ set stdev [expr $scale * sqrt($diff / $N)]
 append result "[format "%.1f" $stdev] "
 
 
-set fn "Wake.txt"
-if {[file exists $fn]} {
-	set f [open $fn r]
-	set data [read $f]
-	set column [split $data "\n"]
-	foreach {val} $column {
-		set newcolumn [split $val " "]
-		set wake [lindex $newcolumn 4]
-		puts $wake		
-		}
-}
+
 	
 
