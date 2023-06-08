@@ -39,6 +39,159 @@ proc help_cmd {args} {
 			
 }
 
+
+
+# Proc_scores opens a csv file in the current directory if the directory file name is
+# a time in numerical "YMDHMS" form. This proc will prompt the user to enter the TCL-name for the timezone, and will generate 
+# unix time values for each time point in the file.
+# This procudure assumes that this file a second is 25 frames, and that each frame denotes 
+# a binary wake, sleep, background, or unknown value. Based on the values for each 25 frames,
+# Proc_Scores will then assign a 1 or 0 for each category per second, 
+# and the results will be printed to a text outfile called wakesleep.txt
+
+proc scores_cmd {fn outfile timezone interval} {
+	set outfile $outfile
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] \n]
+	set data [lrange $contents 1 end]
+	if {[regexp {([0-9]+)_labels} $fn a b]} {
+		if {$timezone == "gmt"} {
+		set unixtime [clock scan $b -format %Y%m%d%H%M%S -gmt 1]
+		}
+		set unixtime [clock scan $b -format %Y%m%d%H%M%S -timezone "$timezone"]
+		set unixtime [expr $unixtime + 600]
+		if {$interval == "1"} {
+			while {[llength $data] >= 25} {
+				set interval [lrange $data 0 24]
+				set data [lrange $data 25 end]
+				set wake 0
+				set sleep 0
+				set background 0
+				foreach line $interval {
+					set line [split $line "," ]
+					if {[lindex $line 3] == 1} {incr wake}
+					if {[lindex $line 2] == 1} {incr sleep}
+				} 
+				if {$wake >= 13} {
+					set wake 1
+					set sleep 0
+				} elseif {$sleep >= 13} {
+					set sleep 1
+					set wake 0
+				} elseif {$wake > $sleep} {
+					set wake 1
+					set sleep 0
+				} elseif {$wake < $sleep} {
+					set sleep 1
+					set wake 0
+				} else {
+					set background 8
+				}
+				puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
+				incr unixtime 8
+			}
+		} elseif {$interval == "8"} {
+			while {[llength $data] >= 200} {
+				set interval [lrange $data 0 199]
+				set data [lrange $data 200 end]
+				set wake 0
+				set sleep 0
+				set background 0
+				foreach line $interval {
+					set line [split $line "," ]
+					if {[lindex $line 3] == 1} {incr wake}
+					if {[lindex $line 2] == 1} {incr sleep}
+				} 
+				if {$wake >= 104} {
+					set wake 1
+					set sleep 0
+				} elseif {$sleep >= 104} {
+					set sleep 1
+					set wake 0
+				} elseif {$wake > $sleep} {
+					set wake 1
+					set sleep 0
+				} elseif {$wake < $sleep} {
+					set sleep 1
+					set wake 0
+				} else {
+					set background 1
+				}
+				puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
+				incr unixtime 8
+			}
+		}
+		
+	} else {
+		puts "File $fn is not a viable file for the scores procedure."
+	}	
+ }
+
+
+
+# Fixtime procedure will take an .ndf file and assign each characteristic line its corresponding unix time stamp,
+# Each line is written to an outfile to create a new list, with unix time, EEG, and EMG values.
+
+proc fixtime_cmd {fn out} {
+	set outfile $out 
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] \n]
+	set startime 0
+	if {[regexp {M([0-9]+)} $contents a b]} {
+		foreach val $contents {
+			set ftime [expr $b + [lindex $val 1]]
+			set val [lreplace $val 0 1 $ftime]
+			puts $out $val
+		}
+	} else {
+		puts "error"
+	}
+}
+
+
+# Match procedure sorts through two lists by comparing the values of their first elements in each line
+# If value A > value B, the line containing value B is discarded, and vice verse
+# If the elements match, both lines are written to a new file as a new line in a list. 
+# Then, both of the lines containing the matching first element are discarded so the sorting 
+# can continue.
+
+proc match_cmd {fn1 fn2} {
+	set outfile [open final.csv w]
+	puts $outfile
+	set open_s [open $fn1 r]
+	set open_c [open $fn2 r]
+	set A [split [string trim [read $open_s]] \n]
+	set B [split [string trim [read $open_c]] \n]
+	close $open_s
+	close $open_c
+	set outlist ""
+	while {[llength $A] > 0 && [llength $B] > 0 } {
+		set a [lindex $A 0]
+		set b [lindex $B 0]
+		if {[lindex $a 0] > [lindex $b 0]} {
+			set B [lrange $B 1 end]
+			
+		} elseif {[lindex $b 0] > [lindex $a 0]} {
+			set A [lrange $A 1 end]
+			puts [llength $A]
+			puts [llength $B]
+		} else {
+			lappend outlist "$a [lrange $b 1 end]"
+			set A [lrange $A 1 end]
+			set B [lrange $B 1 end]
+			puts [llength $A]
+			puts [llength $B]
+		}
+	}
+	foreach line $outlist { 
+		puts $outfile $line
+	
+	}
+	close $outfile
+}
+
+
+
 proc isprime_cmd {args} {
 	set is_prime 1
  	for {set i 2} {$i < $args} {incr i} {
@@ -426,6 +579,60 @@ proc toascii_cmd {args} {
 
 	
 }
+
+
+proc findfiles {dir {pattern "*"}} {
+	set file_list [list]
+	set dir_list [glob -directory $dir *]
+	foreach a $dir_list {
+		if {[file isdirectory $a]} {
+			set subdir_list [findfiles $a $pattern]
+			set file_list [concat $file_list $subdir_list]
+		} else {
+			if {[string match $pattern $a]} {
+				lappend file_list $a
+			}
+		}
+	}
+	set file_list [lsort -increasing $file_list]
+	return $file_list
+	
+}
+set cfile_pattern "*M*.txt"
+foreach fn [findfiles [pwd] $cfile_pattern] {
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] \n]
+	close $f
+	puts "[file tail $fn] [llength $contents]"
+}
+
+set csv_pattern "*.csv"
+foreach fn [findfiles [pwd] $csv_pattern] {
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] \n]
+	close $f
+	puts "[file tail $fn] [llength $contents]"
+}
+
+proc callfix_cmd {args} {
+	set cfile_pattern "*M*.txt"
+	set out [open NPvalues.txt w]
+	foreach fn [findfiles [pwd] $cfile_pattern] {
+		fixtime_cmd $fn $out
+	}
+	close $out
+}
+	
+proc callscores_cmd {timezone interval} {
+	set timezone $timezone
+	set interval $interval
+	set csv_pattern "*.csv"	
+	set outfile [open wakesleep.txt w] 
+	foreach fn [findfiles [pwd] $csv_pattern] {
+		scores_cmd $fn $outfile $timezone $interval
+	}
+	close $outfile
+}
 # Switch $ans -
 
 while {1} {
@@ -467,11 +674,25 @@ while {1} {
 			"TOASCII" {
 				toascii_cmd $args
 			}
+			"SCORES" {
+				puts "Please enter the abbreviated time zone for your files." 
+				set timezone [gets stdin]
+				puts "Thanks, now please enter the interval processing length for the program."
+				set interval [gets stdin]
+				callscores_cmd $timezone $interval
+				
+			}
+			"FIXTIME" {
+				callfix_cmd $args
+			}
 			"RMS" {
 				rms_cmd $args
 			}
 			"STDEV" {
 				stdev_cmd $args
+			}
+			"Match" {
+				match_cmd [lindex $args 0] [lindex $args 1]
 			}
 			"No52" {
 				No52_cmd $args
