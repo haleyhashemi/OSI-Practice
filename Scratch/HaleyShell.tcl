@@ -56,10 +56,14 @@ proc scores_cmd {fn outfile timezone interval} {
 	set data [lrange $contents 1 end]
 	if {[regexp {([0-9]+)_labels} $fn a b]} {
 		if {$timezone == "gmt"} {
-		set unixtime [clock scan $b -format %Y%m%d%H%M%S -gmt 1]
+			set unixtime [clock scan $b -format %Y%m%d%H%M%S -gmt 1]
+		} elseif {$timezone == "bst"} {
+			set unixtime [clock scan $b -format %Y%m%d%H%M%S -gmt 1]
+			set unixtime [expr $unixtime + 600]
+		} else {
+			set unixtime [clock scan $b -format %Y%m%d%H%M%S -timezone "$timezone"]
 		}
-		set unixtime [clock scan $b -format %Y%m%d%H%M%S -timezone "$timezone"]
-		set unixtime [expr $unixtime + 600]
+		# puts $unixtime
 		if {$interval == "1"} {
 			while {[llength $data] >= 25} {
 				set interval [lrange $data 0 24]
@@ -88,7 +92,7 @@ proc scores_cmd {fn outfile timezone interval} {
 					set background 8
 				}
 				puts $outfile "[format %.1f $unixtime] $wake $sleep $background"
-				incr unixtime 8
+				incr unixtime 
 			}
 		} elseif {$interval == "8"} {
 			while {[llength $data] >= 200} {
@@ -156,12 +160,11 @@ proc fixtime_cmd {fn out} {
 # can continue.
 
 proc match_cmd {fn1 fn2} {
-	set outfile [open final.csv w]
-	puts $outfile
+	set outfile [open final.txt w]
 	set open_s [open $fn1 r]
 	set open_c [open $fn2 r]
-	set A [split [string trim [read $open_s]] \n]
-	set B [split [string trim [read $open_c]] \n]
+	set A [split [string trim [read $open_s]] \n ]
+	set B [split [string trim [read $open_c]] \n ]
 	close $open_s
 	close $open_c
 	set outlist ""
@@ -179,12 +182,12 @@ proc match_cmd {fn1 fn2} {
 			lappend outlist "$a [lrange $b 1 end]"
 			set A [lrange $A 1 end]
 			set B [lrange $B 1 end]
-			puts [llength $A]
-			puts [llength $B]
 		}
 	}
+	
 	foreach line $outlist { 
 		puts $outfile $line
+		puts $line
 	
 	}
 	close $outfile
