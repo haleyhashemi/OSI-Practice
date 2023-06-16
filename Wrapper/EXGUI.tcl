@@ -244,7 +244,7 @@ proc console_up {} {
 	puts -nonewline $command
 	set command_list $newlist
 	}		
-}
+
 
 
 			
@@ -260,10 +260,10 @@ proc console_down {} {
 }
 
 
-# Handle the left arrow.
+# Handle the left arrow. Trying to get the cursor in the text to shift and insert new characters.
 proc console_left {} {
 	global command command_list
-	puts -nonewline "\a"
+	puts -nonewline "\x08"
 }
 
 # Handle the right arrow.
