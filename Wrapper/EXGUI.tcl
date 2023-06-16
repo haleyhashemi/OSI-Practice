@@ -228,9 +228,12 @@ proc console_execute {} {
 }
 
 
-# Handle the up arrow. For now we are just printing out the list of
-# previously-executed commands. We put a line feed before the list so it prints
-# out nicely.
+# Handle the up arrow. The up arrow will trigger the "console_up" cmd. 
+# This procedure will remove whatever string is echoed to the screen,
+# and will replace it with whatever the previous command was. If you hit the up arrow three times,
+# the stdout will reflect the string that corresponds to the command you used three carriage returns ago.
+
+
 proc console_up {} {
 	global command command_list
 	set newlist $command_list
@@ -239,15 +242,13 @@ proc console_up {} {
 	set command [lindex $command_list end]
 	set command_list [lrange $command_list 0 end-1]
 	puts -nonewline $command
-	set c [read stdin 1] 
-	if {$c == "\n"} {
-		set command_list $newlist
+	set command_list $newlist
 	}		
 }
 
 
 			
-#for loop string length $command (if i > than this, do back slash space back slashx)
+# Removes whatever string is echoed to the string, no matter the length of the string.
 
 # Handle the down arrow.
 proc console_down {} {
