@@ -61,6 +61,18 @@ button .browse -text Browse -command {
 }
 pack .browse -side left
 
+# Quit button, when selected this will execute the exit command.
+
+button .exit -text Quit -command {
+	exec stty -raw echo
+	exit
+	}
+
+pack .exit -side right
+
+
+
+
 # Reconfigure the terminal using the stty command. We want to configure
 # the standard input and output so that key presses are passed immediately
 # into the input buffer and not echoed by the terminal.
@@ -221,13 +233,26 @@ proc console_execute {} {
 # out nicely.
 proc console_up {} {
 	global command command_list
-	puts "UPARR"
+	set newlist $command_list
+	if {$command != ""} {
+		console_down} 
+	set command [lindex $command_list end]
+	set command_list [lrange $command_list 0 end-1]
+	puts -nonewline $command
+	set c [read stdin 1] 
+	if {$c == "\n"} {
+		set command_list $newlist
+	}		
 }
+
+
+			
+#for loop string length $command (if i > than this, do back slash space back slashx)
 
 # Handle the down arrow.
 proc console_down {} {
 	global command command_list
-	if {[string length $command] > 0} {
+	for {set i 0} {[string length $command] > 0} {incr i} {
 						set command [string range $command 0 end-1]
 						puts -nonewline "\x08\x20\x08"
 	}
@@ -237,7 +262,7 @@ proc console_down {} {
 # Handle the left arrow.
 proc console_left {} {
 	global command command_list
-	puts "\a"
+	puts -nonewline "\a"
 }
 
 # Handle the right arrow.
