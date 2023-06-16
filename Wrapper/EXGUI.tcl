@@ -134,18 +134,21 @@ proc console_execute {} {
 		# use our "cstate" to navigate through this complexity. First we determine
 		# the ASCII value of our character.
 			scan $c %c ascii
-			
+	
 			# The escape state indicates that our previous state was insert
 			# and our previous character was an escape character (decimal 27).
 			# If we now get a left bracket (decimal 91), we move to the arrow
-			# state. If we get an escape, we go back to the insert state. If
+			# state. If we get an escpe, we go back to the insert state. If
 			# we get any other character, we make a bell sound (hex 07) and
 			# go back to the insert state.
 			if {$cstate == "escape"} {
 				if {$ascii == 91} {
 					set cstate "arrow"
-				} elseif {$ascii == 27} {	
+				} elseif {$ascii == 27} {
 					set cstate "insert"		
+				} elseif {$ascii == 84} {
+					puts "OUCH!"
+					set cstate "insert"
 				} else {
 					puts -nonewline "\x07"			
 					set cstate "insert"
@@ -155,18 +158,28 @@ proc console_execute {} {
 			# In the arrow state, we are waiting for a character to specify
 			# which arrow. If we get a valid arrow specifier, we call the
 			# appropriate arrow handling routine.
+		
 				switch $c {
-					"A" {console_up}
-					"B" {console_down}
-					"C" {console_right}
-					"D" {console_left}
+					"A" {
+						console_up
+					}
+					"B" {
+						console_down 
+					}		
+					"C" {
+						console_right
+					}
+					"D" {
+						console_left
+					}
 					default {error "Unknown arrow argument \"$c\"."}
 				}
 				set cstate "insert"
-				
+
 			} elseif {$cstate == "insert"} {
-			# In the insert state, we check for unusual characters first. 
-				if {$ascii == 27} {
+				if {$c == "B"} {
+					puts "B \a"
+				} elseif {$ascii == 27} {
 				# If we see an escape (decimal 27), we enter the escape state
 				# and do nothing else.
 					set cstate "escape"
@@ -198,8 +211,10 @@ proc console_execute {} {
 		puts -nonewline "GUI$ "
 		set cstate "insert"
 	}
+
 	flush stdout
 }
+
 
 # Handle the up arrow. For now we are just printing out the list of
 # previously-executed commands. We put a line feed before the list so it prints
@@ -207,26 +222,27 @@ proc console_execute {} {
 proc console_up {} {
 	global command command_list
 	puts "UPARR"
-	foreach cmd $command_list {
-	puts $cmd
-	}
 }
 
 # Handle the down arrow.
 proc console_down {} {
 	global command command_list
-	puts "DOWNARR"
+	if {[string length $command] > 0} {
+						set command [string range $command 0 end-1]
+						puts -nonewline "\x08\x20\x08"
+	}
 }
+
 
 # Handle the left arrow.
 proc console_left {} {
 	global command command_list
-	puts "LEFTARR"
+	puts "\a"
 }
 
 # Handle the right arrow.
 proc console_right {} {
 	global command command_list
-	puts "RIGHTARR"
+	puts  "RIGHTARR"
 }
 
