@@ -102,7 +102,7 @@ set command ""
 # only when we are about to execute the command, having received a newline, and
 # only if the command contains something other than just white spaces.
 set command_list [list]
-
+set newlist [list]
 # Set up a global console state variable.
 set cstate "insert"
 
@@ -228,30 +228,55 @@ proc console_execute {} {
 }
 
 
-# Handle the up arrow. The up arrow will trigger the "console_up" cmd. 
-# This procedure will remove whatever string is echoed to the screen,
-# and will replace it with whatever the previous command was. If you hit the up arrow three times,
-# the stdout will reflect the string that corresponds to the command you used three carriage returns ago.
 
+
+# Hitting the up arrow will you show you the previous command. Once you reach the last previously executed command, hitting the up arrow again will
+# start again at the bottom of the list of the previous commands.
 
 proc console_up {} {
-	global command command_list
-	set newlist $command_list
-	if {$command != ""} {
-		console_down} 
-	set command [lindex $command_list end]
-	set command_list [lrange $command_list 0 end-1]
-	puts -nonewline $command
-	set command_list $newlist
-	}		
+	global command command_list newlist
+	if {[llength $command_list] > 0} {
+		if {$command != ""} {
+			removespace_cmd
+		}
+		set command [lindex $command_list end]
+		set command_list [lrange $command_list 0 end-1]
+		lappend newlist $command
+		puts -nonewline $command
+	} else {
+		set length [llength $newlist]
+		for {set i 0} { $i < $length } {incr i} {
+			lappend command_list [lindex $newlist end]
+			set newlist [lrange $newlist 0 end-1]
+			}
+		set newlist ""
+	}
+	
+}	
 
 
+# Handle the down arrow. I am trying to configure the down arrow to switch through the previously executed commands.
 
-			
-# Removes whatever string is echoed to the string, no matter the length of the string.
-
-# Handle the down arrow.
 proc console_down {} {
+	global command command_list newlist
+	set command [lindex ]
+	if {[llength $command_list] > 0} {
+		if {$command != ""} {
+			removespace_cmd
+		}
+		set command [lindex $command_list end]
+		set command_list [lrange $command_list 0 end-1]
+		lappend newlist $command
+		puts -nonewline $command
+	} else {
+		set command_list $newlist
+	}
+		
+}
+			
+
+# Remove the most recent command string from the standard output.
+proc removespace_cmd {} {
 	global command command_list
 	for {set i 0} {[string length $command] > 0} {incr i} {
 						set command [string range $command 0 end-1]
@@ -259,11 +284,11 @@ proc console_down {} {
 	}
 }
 
-
 # Handle the left arrow. Trying to get the cursor in the text to shift and insert new characters.
 proc console_left {} {
 	global command command_list
 	puts -nonewline "\x08"
+	
 }
 
 # Handle the right arrow.
