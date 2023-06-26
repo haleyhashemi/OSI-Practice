@@ -131,10 +131,55 @@ proc scores_cmd {fn outfile timezone interval} {
 	}	
  }
 
+# Read the characteristics file that has been generated through the "Fixtime" procedure. 
+# Open and read each line of the file, creating a list. Calculate the average EMG and EEG scores 
+# for the first 8 lines of the list. Write the average values, along with the first element of the first line in the list (the time stamp) to a new file. 
+# Remove the first 8 elements from the original list, so that the Nth element (your interval processing number) is now the first element of the list. 
+# Repeat this process until there are no longer 8 or more characteristic lines in the list.
+
+proc interval_cmd {fn} {
+	set outfile [open interval.txt w]
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] \n]
+	while {[llength $contents] >= 8} {
+		set interval [lrange $contents 0 7]
+		set contents [lrange $contents 8 end]
+		set eeg ""
+		set emg ""
+		set tstamp ""
+		foreach val $interval {
+			lappend eeg [lindex $val 1]
+			lappend emg [lindex $val 2]
+			lappend tstamp [lindex $val 0]
+		}
+		if {$emg != ""} {
+			set t [lindex $tstamp 0]
+			set sum 0
+			set N 0
+			foreach val $eeg {
+				set sum [expr $val + $sum]
+				incr N 1
+			}
+			set eeg_avg [expr $sum / double ($N)]
+			set sum 0
+			set N 0
+			foreach val $emg {
+				set sum [expr $val + $sum]
+				incr N 1
+			}
+			set emg_avg [expr $sum / double ($N)]
+			
+			puts $outfile " $t [format %.1f $eeg_avg] [format %.1f $emg_avg]"
+		}
+	}
+	close $f
+	close $outfile
+}
 
 
-# Fixtime procedure will take an .ndf file and assign each characteristic line its corresponding unix time stamp,
-# Each line is written to an outfile to create a new list, with unix time, EEG, and EMG values.
+# Fixtime procedure will take any .ndf files in the currenty directory, and assign each characteristics line its corresponding unix time stamp.
+# Each line of each .ndf file is written to the same outfile to create a new list containing all of the unix time stamps and their 
+# corresponding EEG and EMG values.
 
 proc fixtime_cmd {fn out} {
 	set outfile $out 
@@ -287,7 +332,6 @@ proc wordcount_cmd {fn} {
 		close $f
 	}
 } 
-
 
 # Root mean square command below.
 proc rms_cmd {args} {
@@ -626,6 +670,8 @@ proc callfix_cmd {args} {
 	close $out
 }
 	
+
+	
 proc callscores_cmd {timezone interval} {
 	set timezone $timezone
 	set interval $interval
@@ -699,6 +745,9 @@ while {1} {
 			}
 			"No52" {
 				No52_cmd $args
+			}
+			"Interval" {
+				interval_cmd $args
 			}
 			default {
 				error "no such command \"$cmd\""
