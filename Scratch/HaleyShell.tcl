@@ -41,13 +41,14 @@ proc help_cmd {args} {
 
 
 
-# Proc_scores opens a csv file in the current directory if the directory file name is
-# a time in numerical "YMDHMS" form. This proc will prompt the user to enter the TCL-name for the timezone, and will generate 
-# unix time values for each time point in the file.
-# This procudure assumes that this file a second is 25 frames, and that each frame denotes 
-# a binary wake, sleep, background, or unknown value. Based on the values for each 25 frames,
-# Proc_Scores will then assign a 1 or 0 for each category per second, 
-# and the results will be printed to a text outfile called wakesleep.txt
+# Proc_scores opens a csv file in the current directory if the directory file
+# name is a time in numerical "YMDHMS" form. This proc will prompt the user
+# to enter the TCL-name for the timezone, and will generate unix time values
+# for each time point in the file. This procudure assumes that this file a
+# second is 25 frames, and that each frame denotes a binary wake, sleep,
+# background, or unknown value. Based on the values for each 25 frames,
+# Proc_Scores will then assign a 1 or 0 for each category per second, and the
+# results will be printed to a text outfile called wakesleep.txt
 
 proc scores_cmd {fn outfile timezone interval} {
 	set outfile $outfile
@@ -131,11 +132,14 @@ proc scores_cmd {fn outfile timezone interval} {
 	}	
  }
 
-# Read the characteristics file that has been generated through the "Fixtime" procedure. 
-# Open and read each line of the file, creating a list. Calculate the average EMG and EEG scores 
-# for the first 8 lines of the list. Write the average values, along with the first element of the first line in the list (the time stamp) to a new file. 
-# Remove the first 8 elements from the original list, so that the Nth element (your interval processing number) is now the first element of the list. 
-# Repeat this process until there are no longer 8 or more characteristic lines in the list.
+# Read the characteristics file that has been generated through the "Fixtime"
+# procedure. Open and read each line of the file, creating a list. Calculate
+# the average EMG and EEG scores for the first 8 lines of the list. Write the
+# average values, along with the first element of the first line in the list
+# (the time stamp) to a new file. Remove the first 8 elements from the
+# original list, so that the Nth element (your interval processing number) is
+# now the first element of the list. Repeat this process until there are no
+# longer 8 or more characteristic lines in the list.
 
 proc interval_cmd {fn} {
 	set outfile [open interval.txt w]
@@ -177,9 +181,72 @@ proc interval_cmd {fn} {
 }
 
 
-# Fixtime procedure will take any .ndf files in the currenty directory, and assign each characteristics line its corresponding unix time stamp.
-# Each line of each .ndf file is written to the same outfile to create a new list containing all of the unix time stamps and their 
-# corresponding EEG and EMG values.
+# States procedure takes a list containing EEG and EMG values and assigns a behavioral state to every second of recorded values.
+# In this case, the recorded values are every 8 seconds.
+# Lets do every 30 values. 
+# If the avaerge eeg value is greater than 70, and the average value of emg is less than 80, incremenet REM. 
+# If the average eeg value is less than 70, and the averafe emg value is greater than 80, incr awake.
+# if the average eeg value is less than 70, and the average emg value is less than 80, incr NREM.
+# If the average eeg value and emg values are high, do nothing 
+# Do this before interval
+proc states_cmd {fn} {
+	set outfile [open scores.txt w]
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] "\n"]
+	while {[llength $contents] >= 30} {
+		set interval [lrange $contents 0 29]
+		set contents [lrange $contents 30 end]
+		set awake 0 
+		set REM 0
+		set NREM 0
+		set sum 0 
+		set N 0
+		set newlist [list]
+		foreach value $interval {
+			set sum [expr [lindex $value 1] + $sum]
+			incr N 1
+		}
+		set eeg_avg [expr $sum / double ($N)]
+		set sum 0
+		set N 0
+		foreach value $interval {
+			set sum [expr [lindex $value 2] + $sum]
+			incr N 1
+		}
+		set emg_avg [expr $sum / double ($N)]
+		
+		if {($eeg_avg > 70) && ($emg_avg < 80)} {
+			set REM 1
+
+		} elseif {($eeg_avg < 70) && ($emg_avg > 80)} {
+			set awake 1
+		} elseif {($eeg_avg < 70) && ($emg_avg < 80)} {
+			set NREM 1
+		} 
+		foreach line $interval {
+			lappend newlist "$line $awake $REM $NREM"
+		}
+		foreach line $newlist {
+			puts $outfile $line
+	}
+	}
+	close $outfile
+	close $f
+}
+
+
+
+		
+
+
+						
+
+
+# Fixtime procedure will take any .ndf files in the currenty directory, and
+# assign each characteristics line its corresponding unix time stamp. Each
+# line of each .ndf file is written to the same outfile to create a new list
+# containing all of the unix time stamps and their corresponding EEG and EMG
+# values.
 
 proc fixtime_cmd {fn out} {
 	set outfile $out 
@@ -195,14 +262,16 @@ proc fixtime_cmd {fn out} {
 	} else {
 		puts "error"
 	}
+	close $outfile
 }
 
 
-# Match procedure sorts through two lists by comparing the values of their first elements in each line
-# If value A > value B, the line containing value B is discarded, and vice verse
-# If the elements match, both lines are written to a new file as a new line in a list. 
-# Then, both of the lines containing the matching first element are discarded so the sorting 
-# can continue.
+# Match procedure sorts through two lists by comparing the values of their
+# first elements in each line If value A > value B, the line containing value
+# B is discarded, and vice verse If the elements match, both lines are
+# written to a new file as a new line in a list. Then, both of the lines
+# containing the matching first element are discarded so the sorting can
+# continue.
 
 proc match_cmd {fn1 fn2} {
 	set outfile [open final.txt w]
@@ -315,14 +384,15 @@ proc goto_cmd {A} {
 	}
 }
 
-# This code counts the amount of words in a file. 
-# fn in yellow is the argument variable, and that name of the file that is entered 
-# next to "WORDCOUNT" is content of the variable/argument. Here I have a standard
-# If clause following the defined argument. 
-# Use string trim to count the words and ignore empty space at the beginning of the end of the text.
-# Use split { } to remove the places in the text where there are two spaces, which
-# Will be confuse string trim. The curly brackets include a space in the middle.
+# This code counts the amount of words in a file. fn in yellow is the argument
+# variable, and that name of the file that is entered next to "WORDCOUNT" is
+# content of the variable/argument. Here I have a standard If clause
+# following the defined argument. Use string trim to count the words and
+# ignore empty space at the beginning of the end of the text. Use split{ } to
+# remove the places in the text where there are two spaces, which Will be
+# confuse string trim. The curly brackets include a space in the middle.
 # Close the file. 
+
 proc wordcount_cmd {fn} {
 	if {[file exists $fn]} {
 		set f [open $fn r]
@@ -533,24 +603,22 @@ proc toascii_cmd {args} {
 	# Convert args into flat string.
 	set args [join $args]
 
-	# Deal with options.
-	# Code below explained:
-	# Using foreach, the loop will run through each arg and execute commands 
-	# Based on the value of the arg.
-	# Because the first value should be -i, and getoutfile / getinfile are false,
-	# The foreach loop will skip those two components.
-	# If $a is -i, it will set the getinfile to true
-	# The variable newargs has the contents of args, so the foreach loop sets the new contents of newargs
+	# Deal with options. Code below explained: Using foreach, the loop will
+	# run through each arg and execute commands Based on the value of the
+	# arg. Because the first value should be -i, and getoutfile / getinfile
+	# are false, The foreach loop will skip those two components. If $a
+	# is -i, it will set the getinfile to true The variable newargs has the
+	# contents of args, so the foreach loop sets the new contents of newargs
 	# To $newargs with the first argument removed, so that the foreach loop
-	# Can repeat itself with the second argument, and so forth.
-	# Now, with the second argument that should be a text name,
-	# The foreach loop will execute the first if command because the new value of 
-	# Getinfile has been set to true by the previous loop
-	# It will then set the variable infile to have the contents of the second argument, which is a text file
-	# Then, the getinfile is set back to 0 so the loop won't go through that iteration again.
-	# Now it will go through the loop again, with the argumnet "-o"
-	# Once the argument -o is recognized, the foreach loop sets the getoutfile to true (1).
-	# To be continued on monday..
+	# Can repeat itself with the second argument, and so forth. Now, with the
+	# second argument that should be a text name, The foreach loop will
+	# execute the first if command because the new value of Getinfile has
+	# been set to true by the previous loop It will then set the variable
+	# infile to have the contents of the second argument, which is a text
+	# file Then, the getinfile is set back to 0 so the loop won't go through
+	# that iteration again. Now it will go through the loop again, with the
+	# argumnet "-o" Once the argument -o is recognized, the foreach loop sets
+	# the getoutfile to true (1). To be continued on monday..
 	set getinfile 0
 	set infile ""
 	set getoutfile 0
@@ -748,6 +816,9 @@ while {1} {
 			}
 			"Interval" {
 				interval_cmd $args
+			}
+			"States" {
+				states_cmd $args
 			}
 			default {
 				error "no such command \"$cmd\""

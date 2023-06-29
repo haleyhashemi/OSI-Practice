@@ -229,53 +229,55 @@ proc console_execute {} {
 
 
 
-
-# Hitting the up arrow will you show you the previous command. Once you reach the last previously executed command, hitting the up arrow again will
-# start again at the bottom of the list of the previous commands.
-
+# Starting this procedure, I will call the the following global variables to
+# be used: command, command_list, newlist If the command list is not empty,
+# the remove space command will be executed. The content of the command
+# variable is then set to be the last element of the command list. Arrange
+# the command list so that the last element is removed. Add the removed
+# element to a new list, to keep track of the command list history while you
+# navigate. Print the command to the screen. Once the command list is empty,
+# because you have moved through all previously executed commands, all the
+# elements in the new list will be added to the command list, and hitting the
+# up arrow again will start the process over again until a carriage return is
+# selected.
 proc console_up {} {
 	global command command_list newlist
-	if {[llength $command_list] > 0} {
-		if {$command != ""} {
-			removespace_cmd
-		}
+	if {$command_list != ""} {
+		removespace_cmd
 		set command [lindex $command_list end]
 		set command_list [lrange $command_list 0 end-1]
 		lappend newlist $command
 		puts -nonewline $command
-	} else {
+	} elseif {[llength $command_list] == 0} {
 		set length [llength $newlist]
 		for {set i 0} { $i < $length } {incr i} {
 			lappend command_list [lindex $newlist end]
 			set newlist [lrange $newlist 0 end-1]
 			}
 		set newlist ""
-	}
-	
-}	
+	} 
+}
 
 
-# Handle the down arrow. I am trying to configure the down arrow to switch through the previously executed commands.
+# Handle the down arrow. I am trying to configure the down arrow to switch
+# through the previously executed commands.
 
 proc console_down {} {
-	global command command_list newlist
-	set command [lindex ]
-	if {[llength $command_list] > 0} {
-		if {$command != ""} {
-			removespace_cmd
-		}
-		set command [lindex $command_list end]
-		set command_list [lrange $command_list 0 end-1]
-		lappend newlist $command
-		puts -nonewline $command
-	} else {
-		set command_list $newlist
+	global newlist command command_list
+	if {$command != ""} {
+		removespace_cmd
 	}
-		
+	set command [lindex $newlist end-1]
+	puts -nonewline $command
 }
+		
+
 			
 
-# Remove the most recent command string from the standard output.
+# Remove the most recent command string from the standard output. Call the
+# global variables command and command_list For every character of the
+# contents of $command, which has been printed to the screen, Set the command
+# to be one less character, and put a back space.
 proc removespace_cmd {} {
 	global command command_list
 	for {set i 0} {[string length $command] > 0} {incr i} {
@@ -284,12 +286,21 @@ proc removespace_cmd {} {
 	}
 }
 
-# Handle the left arrow. Trying to get the cursor in the text to shift and insert new characters.
-proc console_left {} {
-	global command command_list
-	puts -nonewline "\x08"
+# Handle the left arrow. Trying to get the cursor in the text to shift and
+# insert new characters.
+proc console_left {} { global command command_list puts -nonewline "\x08" set
+string $command gets stdin if {$command != $string} { lsearch set
+back "\x20"	 set index [string index $back] puts $index } 
+	
 	
 }
+
+proc backarr {} {
+	puts -nonewline "\x08\x20\x08"
+}
+
+
+
 
 # Handle the right arrow.
 proc console_right {} {

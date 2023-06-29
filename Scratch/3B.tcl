@@ -13,3 +13,26 @@ puts $f $values
 close $f
 
 
+#Read list A. Add the first element of list A tolist B, setting list A to
+#consist of the second element onward. Do this each time the first element of
+#list A is added to list B. If the first element of list A is less than the
+#first element of list B, add it to list B as the new first element. If it is
+#greater, add it to list B as the final element.  If none of those statements
+#are true, check to see if the first element of list A is less than each
+#element in list B, starting from the second element of list B. Once it is
+#less than an element in list B, insert the first element of list A into list
+#B in the position directly before the element it is less than.
+
+proc haleysort {fn} {
+	set outfile [open haleysorted.txt w]
+	set f [open $fn r]
+	set contents [split [string trim[ read $f]] \n]
+	while {$contents != ""} {
+	set first [lindex $contents 0]
+	set contents [lrange $contents 1 end]
+	lappend $outfile $first
+
+
+	}
+
+}
