@@ -27,12 +27,27 @@ proc haleysort {fn} {
 	set outfile [open haleysorted.txt w]
 	set f [open $fn r]
 	set contents [split [string trim[ read $f]] \n]
-	while {$contents != ""} {
+	set B [list]
 	set first [lindex $contents 0]
+	lappend B $first
 	set contents [lrange $contents 1 end]
-	lappend $outfile $first
-
-
+	while {$contents != ""} {
+		set first [lindex $contents 0]
+		set contents [lrange $contents 1 end]
+		if {$first < [lindex $B 0]} {
+			set B [linsert $B 0 $first]
+		} elseif {$first > [lindex $B end]} {
+			lappend B $first
+		} else {
+			foreach val $B {
+				if {$first < $val} {
+					set B [linsert $B [lindex $val] $first]
+				} elseif {$first == $val} {
+					set B [linsert $B [lindex $val] $first]
+				} 
+			}
+		}
 	}
 
 }
+

@@ -41,6 +41,94 @@ proc help_cmd {args} {
 
 
 
+proc haleysort {fn} {
+	set outfile [open haleysorted.txt w]
+	set f [open $fn r]
+	set contents [split [string trim [read $f] ] " "]
+	set B [list]
+	lappend B [lindex $contents 0]
+	set contents [lrange $contents 1 end]
+	while {[llength $contents] > 0} {
+		set first [lindex $contents 0]
+		set contents [lrange $contents 1 end]
+		if {$first < [lindex $B 0]} {
+			set B [concat $first $B]
+		} elseif {$first > [lindex $B end]} {
+			set B [concat $B $first]	
+		} elseif {($first > [lindex $B 0]) && ($first < [lindex $B end])} {
+			set blength [llength $B]	
+			for {set i 1} {$blength == [llength $B]} {incr i} {
+				if {$first < [lindex $B $i]} {
+					set data [lrange $B $i end]
+					set B [lrange $B 0 [expr $i-1]]
+					set B [concat $B $first $data]
+					
+					}
+				}
+			}
+		
+	}
+	foreach value $B {
+		puts $outfile $value 
+	}
+}
+#Set an index to point to the first element in the list. Clear a swap flag.
+#Compare indexed element to next element. If they are not in correct order,
+#swap them and set the swap flag. Increment the index and repeat until we get
+#to the end of the list. If the swap flag is set, go back to start of list
+#and repeat the process. Otherwise, we are done
+
+proc rand {} {
+	set randomlist [list]
+	for {set i 0} {$i < 1000000} {incr i} {
+		lappend randomlist [expr round (rand () *10000]
+	}
+}
+
+proc bubblesort {fn} {
+	set outfile [open haleysorted.txt w]
+	set f [open $fn r]
+	set contents [split [string trim [read $f] ] " "]
+	set swap 1
+	while {$swap} {
+		set swap 0
+		for {set i 0} {$i < [expr [llength $contents] -1]} {incr i} {
+			if {[lindex $contents $i] > [lindex $contents [expr $i+1]]} {
+				set temp [lindex $contents $i]
+				lset contents $i [lindex $contents [expr $i+1]]
+				lset contents [expr $i+1] $temp
+				set swap 1
+			}
+		}
+	}
+	foreach value $contents {
+		puts $outfile $value
+	}
+	close $f
+	close $outfile
+}
+		
+			
+	
+
+
+
+
+proc numbers {} {
+	set fn "numbers.txt"
+	set f [open $fn w]
+	set values ""
+	set min 0
+	set max 10000
+	for {set i 0} { $i < $max} {incr i} {
+			set num [expr 1.0 * $i / 10000] 
+			lappend values [format "%.3f" $num]
+		} 
+	puts $f $values
+	close $f
+}
+
+
 # Proc_scores opens a csv file in the current directory if the directory file
 # name is a time in numerical "YMDHMS" form. This proc will prompt the user
 # to enter the TCL-name for the timezone, and will generate unix time values
@@ -49,6 +137,7 @@ proc help_cmd {args} {
 # background, or unknown value. Based on the values for each 25 frames,
 # Proc_Scores will then assign a 1 or 0 for each category per second, and the
 # results will be printed to a text outfile called wakesleep.txt
+
 
 proc scores_cmd {fn outfile timezone interval} {
 	set outfile $outfile
@@ -819,6 +908,15 @@ while {1} {
 			}
 			"States" {
 				states_cmd $args
+			}
+			"Haleysort" {
+				haleysort $args
+			}
+			"Numbers" {
+				numbers
+			} 
+			"Bubblesort" {
+				bubblesort $args
 			}
 			default {
 				error "no such command \"$cmd\""
