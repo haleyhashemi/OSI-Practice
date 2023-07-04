@@ -191,6 +191,8 @@ proc console_execute {} {
 			} elseif {$cstate == "insert"} {
 				if {$c == "B"} {
 					puts "B \a"
+				} elseif {$ascii == 3} {
+					exit 
 				} elseif {$ascii == 27} {
 				# If we see an escape (decimal 27), we enter the escape state
 				# and do nothing else.
@@ -229,46 +231,79 @@ proc console_execute {} {
 
 
 
-# Starting this procedure, I will call the the following global variables to
-# be used: command, command_list, newlist If the command list is not empty,
-# the remove space command will be executed. The content of the command
-# variable is then set to be the last element of the command list. Arrange
-# the command list so that the last element is removed. Add the removed
-# element to a new list, to keep track of the command list history while you
-# navigate. Print the command to the screen. Once the command list is empty,
-# because you have moved through all previously executed commands, all the
-# elements in the new list will be added to the command list, and hitting the
-# up arrow again will start the process over again until a carriage return is
-# selected.
+# If the command list is not empty, enact the remove space command.
+# If the global variable "length" is equal to the command list,
+# and the index state is "firstup", the uparrow command will print the 
+# last element of the command list to the terminal, setting the 
+# index state to "nextup", and decrementing the index itself to point to 
+# the next previous command in the list. Regardless of index state,
+# set the length variable equal to the length of the command list.
+# If the index state for the next up arrow press is "nextup", the 
+# index will keep decrementing until the first command in the list shown.
+# Once the very first command is shown, another arrow press will set the index to point to the 
+# most recent command at the end of the list.
+# If the up arrow is followed by a carriage return, which appends a new command 
+# to the command list, then the length variable is no longer equal to the 
+# original length of the list, which then triggers the index to be reset
+# to point to the new final element of the list when the next up arrow is pressed.
+
+
+set indexstate "firstup"
+set index ""
+set length [llength $command_list]
+
 proc console_up {} {
-	global command command_list newlist
+	global command command_list indexstate index length
 	if {$command_list != ""} {
 		removespace_cmd
-		set command [lindex $command_list end]
-		set command_list [lrange $command_list 0 end-1]
-		lappend newlist $command
-		puts -nonewline $command
-	} elseif {[llength $command_list] == 0} {
-		set length [llength $newlist]
-		for {set i 0} { $i < $length } {incr i} {
-			lappend command_list [lindex $newlist end]
-			set newlist [lrange $newlist 0 end-1]
+		if {$length == [llength $command_list]} {
+			if {$indexstate == "firstup"} {
+				set index [llength $command_list]
+				set command [lindex $command_list $index]
+				puts -nonewline $command
+				set indexstate nextup
+			} elseif {$indexstate == "nextup"} {
+				incr index -1
+				set command [lindex $command_list $index]
+				puts -nonewline $command
+				if {$index < 0} {
+					set index [llength $command_list]
+					set command [lindex $command_list $index]
+					puts -nonewline $command
+					set indexstate nextup
+				}	
 			}
-		set newlist ""
-	} 
+		} else {
+			set index [llength $command_list]
+			set command [lindex $command_list $index]
+			puts -nonewline $command
+			set indexstate nextup
+		}
+	}
+	\
+	set length [llength $command_list]
+ 	
 }
+ 
+	
 
 
 # Handle the down arrow. I am trying to configure the down arrow to switch
 # through the previously executed commands.
 
 proc console_down {} {
-	global newlist command command_list
-	if {$command != ""} {
+	global command command_list indexstate index length
+	if {$command_list != ""} {
 		removespace_cmd
 	}
-	set command [lindex $newlist end-1]
-	puts -nonewline $command
+	if {$indexstate == "nextup"} {
+		incr index 1
+		set command [lindex $command_list $index]
+		puts -nonewline $command
+		if {$index > [expr [llength $command_list] +1]} {
+			set indexstate "firstup"
+		}
+	}
 }
 		
 
@@ -298,7 +333,6 @@ back "\x20"	 set index [string index $back] puts $index }
 proc backarr {} {
 	puts -nonewline "\x08\x20\x08"
 }
-
 
 
 
