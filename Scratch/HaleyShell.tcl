@@ -40,6 +40,15 @@ proc help_cmd {args} {
 }
 
 
+# Haley sort: Read list A. Add the first element of list A tolist B, setting list A to
+# consist of the second element onward. Do this each time the first element of
+# list A is added to list B. If the first element of list A is less than the
+# first element of list B, add it to list B as the new first element. If it is
+# greater, add it to list B as the final element.  If none of those statements
+# are true, check to see if the first element of list A is less than each
+# element in list B, starting from the second element of list B. Once it is
+# less than an element in list B, insert the first element of list A into list
+# B in the position directly before the element it is less than.
 
 proc haleysort {fn} {
 	set outfile [open haleysorted.txt w]
@@ -72,20 +81,67 @@ proc haleysort {fn} {
 		puts $outfile $value 
 	}
 }
-#Set an index to point to the first element in the list. Clear a swap flag.
-#Compare indexed element to next element. If they are not in correct order,
-#swap them and set the swap flag. Increment the index and repeat until we get
-#to the end of the list. If the swap flag is set, go back to start of list
-#and repeat the process. Otherwise, we are done
 
-proc rand {} {
-	set randomlist [list]
+
+
+# Randomlist: Generates a randomlist of 1000000 numbers, then calls the
+# bubblesort procedure to sort different ranges of values from the list in
+# increasing order.
+
+proc randomlist {} {
+	set randomlist ""
+	puts $randomlist
 	for {set i 0} {$i < 1000000} {incr i} {
-		lappend randomlist [expr round (rand () *10000]
+		lappend randomlist [expr round (rand () *10000)]
+	}
+	puts [llength $randomlist]
+	foreach ll {100 10000 100000 1000000} {
+		set sort_list [lrange $randomlist 0 [expr $ll -1]]
+		set starttime [clock milliseconds]
+		bubblesort sort_list
+		puts "$ll took [expr [clock milliseconds] - $starttime] miliseconds to sort."
+
 	}
 }
 
-proc bubblesort {fn} {
+# Bubblesort : Set an index to point to the first element in the list. Clear a swap flag.
+# Compare indexed element to next element. If they are not in correct order,
+# swap them and set the swap flag. Increment the index and repeat until we get
+# to the end of the list. If the swap flag is set, go back to start of list
+# and repeat the process. Otherwise, we are done
+
+proc bubblesort {contents} {
+	set outfile [open haleysorted.txt w]
+	set swap 1
+	while {$swap} {
+		set swap 0
+		for {set i 0} {$i < [expr [llength $contents] -1]} {incr i} {
+			if {[lindex $contents $i] > [lindex $contents [expr $i+1]]} {
+				set temp [lindex $contents $i]
+				lset contents $i [lindex $contents [expr $i+1]]
+				lset contents [expr $i+1] $temp
+				set swap 1
+			}
+		}
+	}
+	foreach value $contents {
+		puts $outfile $value
+	}
+	close $outfile
+}
+		
+
+
+
+
+# Bubblesortfile : opens a list that is passed to it in the form of a file.
+# Set an index to point to the first element in the list. Clear a swap flag.
+# Compare indexed element to next element. If they are not in correct order,
+# swap them and set the swap flag. Increment the index and repeat until we get
+# to the end of the list. If the swap flag is set, go back to start of list
+# and repeat the process. Otherwise, we are done
+
+proc bubblesortfile {fn} {
 	set outfile [open haleysorted.txt w]
 	set f [open $fn r]
 	set contents [split [string trim [read $f] ] " "]
@@ -109,10 +165,9 @@ proc bubblesort {fn} {
 }
 		
 			
-	
 
 
-
+# numbers will generate a list of 10000 real numbers from 0-1. 
 
 proc numbers {} {
 	set fn "numbers.txt"
@@ -282,9 +337,9 @@ proc states_cmd {fn} {
 	set outfile [open scores.txt w]
 	set f [open $fn r]
 	set contents [split [string trim [read $f]] "\n"]
-	while {[llength $contents] >= 30} {
-		set interval [lrange $contents 0 29]
-		set contents [lrange $contents 30 end]
+	while {[llength $contents] >= 15} {
+		set interval [lrange $contents 0 14]
+		set contents [lrange $contents 15 end]
 		set awake 0 
 		set REM 0
 		set NREM 0
@@ -303,15 +358,20 @@ proc states_cmd {fn} {
 			incr N 1
 		}
 		set emg_avg [expr $sum / double ($N)]
-		
-		if {($eeg_avg > 70) && ($emg_avg < 80)} {
-			set REM 1
 
-		} elseif {($eeg_avg < 70) && ($emg_avg > 80)} {
-			set awake 1
-		} elseif {($eeg_avg < 70) && ($emg_avg < 80)} {
+		if {($eeg_avg < 75) && ($emg_avg < 85)} {
 			set NREM 1
-		} 
+		} elseif {($eeg_avg > 75) && ($emg_avg < 85)} {
+			set REM 1
+		} elseif {($emg_avg > 85) && ($eeg_avg < 75)} {
+			set awake 1
+		} elseif {($emg_avg > 85) && ($eeg_avg > 75)} {
+			if {$emg_avg > $eeg_avg} {
+				set awake 1
+			} else {
+				set REM 1
+			}
+		}
 		foreach line $interval {
 			lappend newlist "$line $awake $REM $NREM"
 		}
@@ -914,9 +974,9 @@ while {1} {
 			}
 			"Numbers" {
 				numbers
-			} 
-			"Bubblesort" {
-				bubblesort $args
+			}
+			"Rand" {
+				randomlist
 			}
 			default {
 				error "no such command \"$cmd\""

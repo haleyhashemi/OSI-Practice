@@ -254,37 +254,38 @@ set length [llength $command_list]
 
 proc console_up {} {
 	global command command_list indexstate index length
-	if {$command_list != ""} {
-		removespace_cmd
-		if {$length == [llength $command_list]} {
-			if {$indexstate == "firstup"} {
-				set index [llength $command_list]
-				set command [lindex $command_list $index]
-				puts -nonewline $command
-				set indexstate nextup
-			} elseif {$indexstate == "nextup"} {
-				incr index -1
-				set command [lindex $command_list $index]
-				puts -nonewline $command
-				if {$index < 0} {
-					set index [llength $command_list]
-					set command [lindex $command_list $index]
-					puts -nonewline $command
-					set indexstate nextup
-				}	
-			}
-		} else {
+	if {$length == [llength $command_list]} {
+		if {$indexstate == "firstup"} {
+			removespace_cmd
 			set index [llength $command_list]
 			set command [lindex $command_list $index]
 			puts -nonewline $command
 			set indexstate nextup
-		}
+		} elseif {$indexstate == "nextup"} {
+			removespace_cmd
+			incr index -1
+			set command [lindex $command_list $index]
+			puts -nonewline $command
+			if {$index < 0} {
+				set index [llength $command_list]
+				set command [lindex $command_list $index]
+				puts -nonewline $command
+				set indexstate nextup
+				}	
+			}
+	} else {
+			removespace_cmd 
+			set index [llength $command_list]
+			set command [lindex $command_list $index]
+			puts -nonewline $command
+			set indexstate nextup
 	}
-	\
+	
 	set length [llength $command_list]
  	
 }
- 
+	
+	
 	
 
 
