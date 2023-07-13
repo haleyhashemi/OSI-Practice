@@ -406,12 +406,12 @@ proc fixtime_cmd {fn out} {
 		foreach val $contents {
 			set ftime [expr $b + [lindex $val 1]]
 			set val [lreplace $val 0 1 $ftime]
-			puts $out $val
+			puts $outfile $val
 		}
 	} else {
 		puts "error"
 	}
-	close $outfile
+	close $f
 }
 
 

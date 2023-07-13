@@ -102,15 +102,20 @@ set command ""
 # only when we are about to execute the command, having received a newline, and
 # only if the command contains something other than just white spaces.
 set command_list [list]
-set newlist [list]
+set leftstate 0
+set cmd1 ""
+set newcommand ""
 # Set up a global console state variable.
 set cstate "insert"
-
+set c ""
+set indexstate "firstup"
+set index ""
+set length [llength $command_list]
 # Here is console execute, a procedure that reads the standard input, executes
 # the command at the global scope with "uplevel", prints any non-empty result
 # and catches errors.
 proc console_execute {} {
-	global command command_list cstate
+	global command command_list cstate leftstate c
 	if {[catch {
 	
 		# The stdin channel is readable, so read exactly one character.
@@ -121,6 +126,7 @@ proc console_execute {} {
 		if {$c == ""} {
 			error "Received empty string from stdin."
 		} elseif {$c == "\n"} {
+		
 		# If we receive a newline, then we will execute whatever command we have
 		# accumulated so far. We capture the "exit" command locally so that we
 		# can restore the terminal before exiting. We print the result of the
@@ -129,12 +135,14 @@ proc console_execute {} {
 		# restore the console state to "insert", and printe a new prompt.
 			puts stdout ""			
 			set command [string trim $command]
+			set leftstate 0
 			if {$command == "exit"} {
 				exec stty -raw echo
 				exit
 			}
 			if {$command != ""} {lappend command_list $command}
 			set result [uplevel $command]
+
 			if {$result != ""} {puts stdout $result}
 			set command ""
 			set cstate "insert"
@@ -177,7 +185,7 @@ proc console_execute {} {
 					}
 					"B" {
 						console_down 
-					}		
+					}
 					"C" {
 						console_right
 					}
@@ -189,9 +197,7 @@ proc console_execute {} {
 				set cstate "insert"
 
 			} elseif {$cstate == "insert"} {
-				if {$c == "B"} {
-					puts "B \a"
-				} elseif {$ascii == 3} {
+				if {$ascii == 3} {
 					exit 
 				} elseif {$ascii == 27} {
 				# If we see an escape (decimal 27), we enter the escape state
@@ -207,12 +213,18 @@ proc console_execute {} {
 						set command [string range $command 0 end-1]
 						puts -nonewline "\x08\x20\x08"
 					}
-					
 				} else {
 				# It's just a simple character, so print it and add it to our
 				# command.
-					puts -nonewline stdout $c
-					append command $c
+	
+					if {$leftstate > 0} {
+						insert_cmd 	
+						puts -nonewline "GUI$ "
+						puts -nonewline $command
+					} else {
+						puts -nonewline stdout $c
+						append command $c
+					}
 				}
 			} else {
 				error "Unknown console state \"$cstate\"."
@@ -248,41 +260,45 @@ proc console_execute {} {
 # to point to the new final element of the list when the next up arrow is pressed.
 
 
-set indexstate "firstup"
-set index ""
-set length [llength $command_list]
 
 proc console_up {} {
 	global command command_list indexstate index length
-	if {$length == [llength $command_list]} {
-		if {$indexstate == "firstup"} {
-			removespace_cmd
+	if {$indexstate == "firstup"} {
+		if {$command == ""} {
 			set index [llength $command_list]
 			set command [lindex $command_list $index]
-			puts -nonewline $command
-			set indexstate nextup
-		} elseif {$indexstate == "nextup"} {
-			removespace_cmd
-			incr index -1
-			set command [lindex $command_list $index]
-			puts -nonewline $command
-			if {$index < 0} {
-				set index [llength $command_list]
-				set command [lindex $command_list $index]
-				puts -nonewline $command
-				set indexstate nextup
-				}	
-			}
-	} else {
+			puts -nonewline  $command
+			puts $command_list
+			set indexstate "nextup"
+		} else {
 			removespace_cmd 
 			set index [llength $command_list]
 			set command [lindex $command_list $index]
 			puts -nonewline $command
-			set indexstate nextup
+			set indexstate "nextup"
+		}
+	} elseif {$indexstate == "nextup"} {
+		if {$length == [llength $command_list]} {
+			if {$index > 0} {
+				removespace_cmd
+				incr index -1
+				set command [lindex $command_list $index]
+				puts -nonewline $command
+			} elseif {$index == 0} {
+				removespace_cmd
+				set command [lindex $command_list $index]
+				puts -nonewline $command
+			}
+		} else {
+			removespace_cmd 
+			set index [llength $command_list]
+			set command [lindex $command_list $index]
+			puts -nonewline $command
+			set indexstate "nextup"
+		}
 	}
 	
 	set length [llength $command_list]
- 	
 }
 	
 	
@@ -315,31 +331,89 @@ proc console_down {} {
 # contents of $command, which has been printed to the screen, Set the command
 # to be one less character, and put a back space.
 proc removespace_cmd {} {
-	global command command_list
+	global command_list command
 	for {set i 0} {[string length $command] > 0} {incr i} {
-						set command [string range $command 0 end-1]
-						puts -nonewline "\x08\x20\x08"
+		set command [string range $command 0 end-1]
+		puts -nonewline "\x08\x20\x08"
+		
 	}
 }
 
 # Handle the left arrow. Trying to get the cursor in the text to shift and
-# insert new characters.
-proc console_left {} { global command command_list puts -nonewline "\x08" set
-string $command gets stdin if {$command != $string} { lsearch set
-back "\x20"	 set index [string index $back] puts $index } 
-	
+# insert new characters.If there are mulitple left arrows and the command 
+
+#insert if there is a new line character, set back to zero again, if not you are still inserting
+
+# Insert command is in progress. Take "c", which is the standard input, and if leftstate is greater than 0,
+# this means that the left arrow has navigated to a specific point in the standard output
+# the proc insert takes the first half of the 
+proc insert2_cmd {} {
+	global leftstate command c command_list
+	append command $c
+	set index [expr [string length $command] - $leftstate]
+	append newcommand [string range $command 0 [expr $index -1]]
+	append newcommand $c
+	append newcommand [string range $command $index end]
+	removespace_cmd
+	set command $newcommand
+	puts -nonewline $command
 	
 }
 
-proc backarr {} {
-	puts -nonewline "\x08\x20\x08"
+proc insert_cmd {} {
+	global leftstate command c command_list newcommand
+	set index [expr [string length $command] - $leftstate]
+	set keeptrack $leftstate
+	set leftstate 0
+	append newcommand [string range $command 0 [expr $index -1]]
+	append newcommand $c
+	append newcommand [string range $command $index end]
+	removespace_cmd
+	set command $newcommand
+	for {set i 0} {$i <= $keeptrack} {incr i} {
+		backspace
+	}
+	
 }
+
+proc console_left {} {
+	global leftstate command
+	puts -nonewline "\x08"
+	incr leftstate 1
+}
+
+
+
+proc backspace {} {
+	global command
+	puts -nonewline "\x08"
+}
+
 
 
 
 # Handle the right arrow.
 proc console_right {} {
-	global command command_list
-	puts  "RIGHTARR"
+	global command command_list rightstate leftstate
+	incr leftstate -1
+	set index [expr [string length $command] - $leftstate]
+	set pre [string range $command 0 [expr $index -1]]
+	set rewrite [string range $command $index [expr $index +1]]
+	puts -nonewline "\x20"
+	removespace_cmd
+	append command $pre
+	append command $rewrite
+	puts -nonewline $command
+
 }
+
+
+
+
+
+
+
+
+
+
 
