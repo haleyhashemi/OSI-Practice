@@ -221,6 +221,12 @@ proc console_execute {} {
 						insert_cmd 	
 						puts -nonewline "GUI$ "
 						puts -nonewline $command
+						set after $leftstate
+						for {set i 0} {$i <= $leftstate} {incr i} {
+							backspace
+						}
+						set leftstate $after
+						
 					} else {
 						puts -nonewline stdout $c
 						append command $c
@@ -357,22 +363,22 @@ proc insert2_cmd {} {
 	removespace_cmd
 	set command $newcommand
 	puts -nonewline $command
+	set newcommand ""
 	
 }
 
 proc insert_cmd {} {
 	global leftstate command c command_list newcommand
 	set index [expr [string length $command] - $leftstate]
-	set keeptrack $leftstate
-	set leftstate 0
 	append newcommand [string range $command 0 [expr $index -1]]
 	append newcommand $c
 	append newcommand [string range $command $index end]
 	removespace_cmd
 	set command $newcommand
-	for {set i 0} {$i <= $keeptrack} {incr i} {
+	for {set i 0} {$i <= $leftstate} {incr i} {
 		backspace
 	}
+	set newcommand ""
 	
 }
 
@@ -397,13 +403,8 @@ proc console_right {} {
 	global command command_list rightstate leftstate
 	incr leftstate -1
 	set index [expr [string length $command] - $leftstate]
-	set pre [string range $command 0 [expr $index -1]]
 	set rewrite [string range $command $index [expr $index +1]]
-	puts -nonewline "\x20"
-	removespace_cmd
-	append command $pre
-	append command $rewrite
-	puts -nonewline $command
+	
 
 }
 
