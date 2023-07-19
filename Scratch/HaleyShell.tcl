@@ -333,6 +333,8 @@ proc interval_cmd {fn} {
 # if the average eeg value is less than 70, and the average emg value is less than 80, incr NREM.
 # If the average eeg value and emg values are high, do nothing 
 # Do this before interval
+
+#change state threshold
 proc states_cmd {fn} {
 	set outfile [open scores.txt w]
 	set f [open $fn r]
@@ -366,6 +368,56 @@ proc states_cmd {fn} {
 		} elseif {($emg_avg > 85) && ($eeg_avg < 75)} {
 			set awake 1
 		} elseif {($emg_avg > 85) && ($eeg_avg > 75)} {
+			if {$emg_avg > $eeg_avg} {
+				set awake 1
+			} else {
+				set REM 1
+			}
+		}
+		foreach line $interval {
+			lappend newlist "$line $awake $REM $NREM"
+		}
+		foreach line $newlist {
+			puts $outfile $line
+	}
+	}
+	close $outfile
+	close $f
+}
+
+proc states1_cmd {fn} {
+	set outfile [open scores.txt w]
+	set f [open $fn r]
+	set contents [split [string trim [read $f]] "\n"]
+	while {[llength $contents] >= 15} {
+		set interval [lrange $contents 0 14]
+		set contents [lrange $contents 15 end]
+		set awake 0 
+		set REM 0
+		set NREM 0
+		set sum 0 
+		set N 0
+		set newlist [list]
+		foreach value $interval {
+			set sum [expr [lindex $value 1] + $sum]
+			incr N 1
+		}
+		set eeg_avg [expr $sum / double ($N)]
+		set sum 0
+		set N 0
+		foreach value $interval {
+			set sum [expr [lindex $value 2] + $sum]
+			incr N 1
+		}
+		set emg_avg [expr $sum / double ($N)]
+
+		if {($eeg_avg < 15) && ($emg_avg < 13)} {
+			set NREM 1
+		} elseif {($eeg_avg > 15) && ($emg_avg < 13)} {
+			set REM 1
+		} elseif {($emg_avg > 13) && ($eeg_avg < 15)} {
+			set awake 1
+		} elseif {($emg_avg > 13) && ($eeg_avg > 15)} {
 			if {$emg_avg > $eeg_avg} {
 				set awake 1
 			} else {
@@ -967,7 +1019,7 @@ while {1} {
 				interval_cmd $args
 			}
 			"States" {
-				states_cmd $args
+				states1_cmd $args
 			}
 			"Haleysort" {
 				haleysort $args
