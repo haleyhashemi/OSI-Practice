@@ -50,10 +50,8 @@ proc help_cmd {args} {
 # less than an element in list B, insert the first element of list A into list
 # B in the position directly before the element it is less than.
 
-proc haleysort {fn} {
+proc haleysort {contents} {
 	set outfile [open haleysorted.txt w]
-	set f [open $fn r]
-	set contents [split [string trim [read $f] ] " "]
 	set B [list]
 	lappend B [lindex $contents 0]
 	set contents [lrange $contents 1 end]
@@ -78,7 +76,7 @@ proc haleysort {fn} {
 		
 	}
 	foreach value $B {
-		puts $outfile $value 
+		puts $outfile $value
 	}
 }
 
@@ -95,10 +93,10 @@ proc randomlist {} {
 		lappend randomlist [expr round (rand () *10000)]
 	}
 	puts [llength $randomlist]
-	foreach ll {100 10000 100000 1000000} {
+	foreach ll {500 1000 1500 2000 2500 3000 3500 4000 4500 5000 5500 6000 6500 7000 7500 8000 8500 9000 9500 10000} {
 		set sort_list [lrange $randomlist 0 [expr $ll -1]]
 		set starttime [clock milliseconds]
-		bubblesort sort_list
+		haleysort $sort_list
 		puts "$ll took [expr [clock milliseconds] - $starttime] miliseconds to sort."
 
 	}
@@ -658,7 +656,10 @@ proc rms_cmd {args} {
 		
 }
 
-
+proc multiply {N1 N2} {
+	set answer [expr $N1 * $N2]
+	puts $answer
+}
 
 # Standard deviation command below. 
 
@@ -974,7 +975,7 @@ while {1} {
 			"GOTO" {
 				goto_cmd $args
 			}
-			"DIVISIBLE" {
+			"div" {
 				divisible_cmd [lindex $args 0] [lindex $args 1]
 			} 
 			"PERCENT" {
@@ -1029,6 +1030,9 @@ while {1} {
 			}
 			"Rand" {
 				randomlist
+			}
+			"x" {
+				multiply [lindex $args 0] [lindex $args 1]
 			}
 			default {
 				error "no such command \"$cmd\""
