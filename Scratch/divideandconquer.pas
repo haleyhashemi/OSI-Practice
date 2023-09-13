@@ -7,11 +7,11 @@ uses sysutils;
 
 const
 	min_length = 10;
-	max_length = 100000;
+	max_length = 400000;
 	length_step = 2;
-	depth = 100;
+	depth = 10000;
 	us_per_ms = 1000;
-	sort_threshold = 10;
+	sort_threshold = 50000;
 
 type 
 {
@@ -70,19 +70,21 @@ var
 	half,oddhalf,oneless,c,d:integer;
 	b: real;
 	a1,a2: array_type;
+	h:longint;
 begin
 {
 	If the list is longer than threshold, split in two and sort each half then
 	combine.
 }
+	
 	if length(a) > sort_threshold then begin
-
 {	Handle even and odd spplit, then call dcsort on two halves
 }
 		if length(a) mod 2 = 0 then begin
 			half:=(round(length(a)/2));
-			setlength(a1,half);
-			setlength(a2,half);
+			h:=(round(length(a)/2));
+			setlength(a1,h);
+			setlength(a2,h);
 			for i:=0 to half-1 do a1[i]:=a[i]; 
 			for i:=half to length(a)-1 do a2[i-half]:=a[i]; 
 			dcsort(a1);
@@ -199,7 +201,7 @@ begin
 		end;
 		tt:=clock_milliseconds-start_time;
 		sort_us:=1.0*tt/num_reps*us_per_ms;
-		writeln(n:1,' ',sort_us:0:1,' ', num_reps:1);
+		writeln(n:1,' ',sort_us:0:1,' ');
 		n:=length_step*n;
 	until n > max_length;
 
